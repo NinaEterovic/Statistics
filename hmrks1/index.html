@@ -1,1 +1,50 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 1 — Public-Key Cryptography in Ethereum</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; background-color: #f4f4f9; color: #333; }
+        h1, h2 { color: #2c3e50; }
+        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        code, pre { background: #eef2f3; padding: 5px 10px; border-radius: 4px; font-family: monospace; }
+        ul { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>HMWK 1 — Public-Key Cryptography: Private Key to Public Key in Ethereum</h1>
+    
+    <h2>1. Introduction & Notes</h2>
+    <p>Elliptic-curve scalar multiplication can be viewed as a cryptographic one-way function. It is deterministic and easy to compute in the forward direction (private key <i>k</i> → public key <i>Q = kG</i>), while recovering <i>k</i> from <i>Q</i> is computationally difficult (based on the Elliptic Curve Discrete Logarithm Problem - ECDLP).</p>
+
+    <h2>2. Toy Curve Parameters</h2>
+    <ul>
+        <li><strong>Curve Equation:</strong> \(y^2 = x^3 + 7 \pmod{17}\)</li>
+        <li><strong>Base Point (Generator):</strong> \(G = (1, 5)\)</li>
+        <li><strong>Private Key:</strong> \(k = 6\)</li>
+    </ul>
+
+    <h2>3. Step-by-Step Computation (\(Q = 6G\))</h2>
+    <ul>
+        <li><strong>1G:</strong> \((1, 5)\)</li>
+        <li><strong>2G (Point Doubling):</strong> \((2, 10)\)</li>
+        <li><strong>3G:</strong> \((5, 9)\)</li>
+        <li><strong>4G:</strong> \((12, 1)\)</li>
+        <li><strong>5G:</strong> \((12, 16)\)</li>
+        <li><strong>6G:</strong> \((5, 8)\)</li>
+    </ul>
+    <p><strong>TOY PUBLIC KEY (Q):</strong> <code>(5, 8)</code></p>
+
+    <h2>4. Statistical Exploration</h2>
+    <p>When repeating this experiment with different private keys <i>k</i>:</p>
+    <ul>
+        <li><strong>Distribution of coordinates:</strong> The resulting <i>x</i> and <i>y</i> coordinates appear pseudo-random and uniformly distributed across the finite field.</li>
+        <li><strong>Avalanche-like behavior:</strong> A small change in the input private key drastically alters the output point due to the non-linear algebraic structure.</li>
+        <li><strong>Comparison:</strong> Unlike cryptographic hash functions which compress arbitrary-length inputs, elliptic-curve public-key cryptography relies on hard mathematical group operations.</li>
+    </ul>
+</div>
+</body>
+</html>
