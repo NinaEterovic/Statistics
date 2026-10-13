@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 2 — Randomness Extraction & Leftover Hash Lemma</title>
+    <!-- MathJax za formule -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #38bdf8;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --highlight-bg: rgba(56, 189, 248, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.4rem;
+        }
+
+        .formula-box {
+            background: rgba(3, 7, 18, 0.7);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 18px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+    
+    <header>
+        <h1>HMWK 2 — Randomness Extraction & Leftover Hash Lemma</h1>
+        <p style="color: var(--text-secondary);">Advanced Cryptography & Information-Theoretic Security Foundations</p>
+    </header>
+
+    <!-- Section 1: Three Paradigms -->
+    <div class="card">
+        <h2>1. Three Paradigms for Randomness Extraction</h2>
+        <p>To overcome fundamental extraction impossibilities, three primary lines of research exist in cryptography:</p>
+        <ul>
+            <li><strong>Multiple Independent Sources (2-Source Extractors):</strong> Assumes two or more statistically independent entropy sources to enable deterministic extraction without extra setup.</li>
+            <li><strong>Cryptographic Assumptions (Hash Functions):</strong> Applies cryptographic primitives (e.g., modeling hash functions as Random Oracles) under computational or structural assumptions.</li>
+            <li><strong>Seeded Extraction:</strong> Introduces a short, uniform, independent random string (a "seed") to act as a catalyst for extracting uniform bits from any weak source.</li>
+        </ul>
+    </div>
+
+    <!-- Section 2: Formal Security & Statistical Distance -->
+    <div class="card">
+        <h2>2. Formal Security & Statistical Distance</h2>
+        <ul>
+            <li><strong>Formal Security Condition:</strong> A seeded extractor requires that the joint distribution of the public seed \(S\) and extracted output \(\text{Ext}(S,X)\) is statistically \(\epsilon\)-close to a pair composed of \(S\) and an independent uniform string \(U_l\):</li>
+        </ul>
+        <div class="formula-box">
+            \((S, \text{Ext}(S,X)) \approx_\epsilon (S, U_l) \equiv U_{d+l}\)
+        </div>
+        <ul>
+            <li><strong>Information-Theoretic Security:</strong> Because security is statistical, even a computationally unbounded adversary \(\mathcal{A}\) cannot distinguish the extracted output from pure uniform randomness with advantage greater than \(\epsilon\).</li>
+            <li><strong>Statistical Distance Definition (\(SD\)):</strong> Defined via total variation distance:</li>
+        </ul>
+        <div class="formula-box">
+            \(SD(X; Y) = \frac{1}{2} \sum_z |\Pr[X = z] - \Pr[Y = z]| \le \epsilon\)
+        </div>
+    </div>
+
+    <!-- Section 3: Leftover Hash Lemma -->
+    <div class="card">
+        <h2>3. The Leftover Hash Lemma (LHL)</h2>
+        <ul>
+            <li><strong>Core Significance:</strong> Demonstrates that pairwise independent hash families function as high-quality seeded extractors.</li>
+            <li><strong>Setup:</strong> Let \(\mathcal{H} = \{h_S : \{0,1\}^m \rightarrow \{0,1\}^l\}_{S \in \{0,1\}^d}\) be a family of pairwise independent hash functions indexed by public seed \(S\).</li>
+            <li><strong>Construction:</strong> Evaluating the hash function with seed \(S\) directly yields the extraction function \(\text{Ext}(S,X) = h_S(X)\).</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
