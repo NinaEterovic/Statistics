@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMWK 1 — Cryptography & Statistics</title>
-    <!-- MathJax za uredne matematičke formule -->
+    <title>HMWK 1 — Public-Key Cryptography & Elliptic Curves</title>
+    <!-- MathJax za formule -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
             --accent-color: #38bdf8;
-            --text-color: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --highlight-bg: rgba(56, 189, 248, 0.1);
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
@@ -35,31 +36,32 @@
         header {
             text-align: center;
             margin-bottom: 40px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
         }
 
         h1 {
             color: var(--accent-color);
             font-size: 2.2rem;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
         }
 
         h2 {
             color: var(--accent-color);
             margin-top: 0;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            font-size: 1.3rem;
+            padding-bottom: 12px;
+            font-size: 1.35rem;
         }
 
         table {
@@ -69,23 +71,65 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 14px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: var(--highlight-bg);
+            background-color: rgba(56, 189, 248, 0.05);
             color: var(--accent-color);
+            font-weight: 600;
         }
 
         .badge {
             display: inline-block;
-            background: #0284c7;
+            background: #0369a1;
             color: white;
             padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .success-badge {
+            background: #047857;
+        }
+
+        /* Canvas Animation Container */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background: #030712;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+        }
+
+        canvas {
+            background: #030712;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .anim-btn {
+            background-color: var(--accent-color);
+            color: #030712;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+        }
+
+        .anim-btn:hover {
+            opacity: 0.9;
         }
 
         ul {
@@ -94,6 +138,11 @@
 
         li {
             margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-color);
         }
     </style>
 </head>
@@ -105,31 +154,36 @@
         <p style="color: var(--text-secondary);">Elliptic-Curve Scalar Multiplication over Finite Field \(\mathbb{Z}_{17}\)</p>
     </header>
 
-    <!-- Section 1: Introduction -->
+    <!-- Section 1: Parameters -->
     <div class="card">
-        <h2>1. Theoretical Background</h2>
-        <p>Elliptic-curve scalar multiplication serves as a fundamental cryptographic one-way function. It is efficient to compute in the forward direction (\(k \to Q = kG\)), while reversing it—known as the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>—is computationally intractable for large prime fields.</p>
-    </div>
-
-    <!-- Section 2: Parameters -->
-    <div class="card">
-        <h2>2. Toy Curve Parameters</h2>
+        <h2>1. Toy Curve Parameters & Setup</h2>
         <ul>
             <li><strong>Curve Equation:</strong> \(y^2 = x^3 + 7 \pmod{17}\)</li>
-            <li><strong>Base Generator Point (\(G\)):</strong> \((1, 5)\)</li>
+            <li><strong>Base Generator Point (\(G\)):</strong> <span class="badge">\((1, 5)\)</span></li>
             <li><strong>Private Key (\(k\)):</strong> <span class="badge">6</span></li>
         </ul>
     </div>
 
-    <!-- Section 3: Step-by-Step Computation -->
+    <!-- Section 2: Canvas Animation & Interactive Graph -->
     <div class="card">
-        <h2>3. Step-by-Step Scalar Multiplication (\(Q = 6G\))</h2>
+        <h2>2. Animated Point Scalar Multiplication (\(Q = k \cdot G\))</h2>
+        <p>The canvas below dynamically animates the sequence of calculated points from \(1G\) up to the final public key \(6G\):</p>
+        
+        <div class="canvas-container">
+            <canvas id="cryptoCanvas" width="500" height="400"></canvas>
+            <button class="anim-btn" onclick="replayAnimation()">Replay Animation 🔄</button>
+        </div>
+    </div>
+
+    <!-- Section 3: Step-by-Step Table -->
+    <div class="card">
+        <h2>3. Mathematical Computation Table</h2>
         <table>
             <thead>
                 <tr>
                     <th>Step</th>
                     <th>Calculated Point \((x, y)\)</th>
-                    <th>Operation Description</th>
+                    <th>Operation Type</th>
                 </tr>
             </thead>
             <tbody>
@@ -141,7 +195,7 @@
                 <tr>
                     <td>\(2G\)</td>
                     <td>\((2, 10)\)</td>
-                    <td>Point Doubling (\(2G = G + G\))</td>
+                    <td>Point Doubling</td>
                 </tr>
                 <tr>
                     <td>\(3G\)</td>
@@ -158,26 +212,115 @@
                     <td>\((12, 16)\)</td>
                     <td>Point Addition (\(4G + G\))</td>
                 </tr>
-                <tr style="background-color: var(--highlight-bg);">
+                <tr style="background-color: rgba(16, 185, 129, 0.1);">
                     <td><strong>\(6G\)</strong></td>
                     <td><strong>\((5, 8)\)</strong></td>
-                    <td><strong>Final Public Key (\(Q\))</strong></td>
+                    <td><strong>Public Key (\(Q\)) <span class="badge success-badge">Final</span></strong></td>
                 </tr>
             </tbody>
         </table>
-        <p style="margin-top: 20px;"><strong>Resulting Toy Public Key (\(Q\)):</strong> <span class="badge">(5, 8)</span></p>
     </div>
 
-    <!-- Section 4: Statistical Exploration -->
+    <!-- Section 4: Statistical Security Findings -->
     <div class="card">
         <h2>4. Statistical Exploration & Findings</h2>
         <ul>
-            <li><strong>Coordinate Distribution:</strong> The resulting sequence of coordinates spreads pseudo-randomly across the finite field \(\mathbb{Z}_{17}\).</li>
-            <li><strong>Avalanche Behavior:</strong> Modifying the private key \(k\) shifts the resulting point drastically across the curve due to the non-linear algebraic group laws.</li>
-            <li><strong>Real-world Relevance:</strong> Ethereum and Bitcoin utilize the exact same algebraic principles via the standardized \(\text{secp256k1}\) curve over a 256-bit prime field.</li>
+            <li><strong>Non-Linear Diffusion:</strong> The coordinates jump across the grid field \(\mathbb{Z}_{17}\) in a pseudo-random pattern, illustrating why the <strong>ECDLP</strong> problem remains intractable.</li>
+            <li><strong>Avalanche Effect:</strong> Small perturbations in the private scalar key \(k\) completely shift the resulting elliptic curve coordinate.</li>
         </ul>
     </div>
 </div>
+
+<script>
+    // Canvas Animation Script for Scalar Multiplication Steps
+    const canvas = document.getElementById('cryptoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const points = [
+        { step: '1G', x: 1, y: 5, desc: '(1,5)' },
+        { step: '2G', x: 2, y: 10, desc: '(2,10)' },
+        { step: '3G', x: 5, y: 9, desc: '(5,9)' },
+        { step: '4G', x: 12, y: 1, desc: '(12,1)' },
+        { step: '5G', x: 12, y: 16, desc: '(12,16)' },
+        { step: '6G (Q)', x: 5, y: 8, desc: '(5,8) - Public Key' }
+    ];
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw Grid lines (0 to 16 for mod 17 field)
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 1;
+
+        const scaleX = canvas.width / 18;
+        const scaleY = canvas.height / 18;
+
+        for (let i = 0; i <= 17; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * scaleX, 20);
+            ctx.lineTo(i * scaleX, canvas.height - 20);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(20, i * scaleY);
+            ctx.lineTo(canvas.width - 20, i * scaleY);
+            ctx.stroke();
+        }
+    }
+
+    function animatePoints() {
+        let currentIndex = 0;
+        const scaleX = canvas.width / 18;
+        const scaleY = canvas.height / 18;
+
+        function stepDraw() {
+            if (currentIndex >= points.length) return;
+
+            drawGrid();
+
+            // Draw lines connecting points up to current index
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i <= currentIndex; i++) {
+                let px = 20 + points[i].x * (scaleX * 0.9);
+                let py = canvas.height - 20 - points[i].y * (scaleY * 0.9);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            // Draw individual points with text labels
+            for (let i = 0; i <= currentIndex; i++) {
+                let px = 20 + points[i].x * (scaleX * 0.9);
+                let py = canvas.height - 20 - points[i].y * (scaleY * 0.9);
+
+                ctx.fillStyle = (i === points.length - 1) ? '#10b981' : '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(px, py, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#f3f4f6';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.fillText(`${points[i].step} ${points[i].desc}`, px + 10, py - 5);
+            }
+
+            currentIndex++;
+            setTimeout(stepDraw, 800); // 800ms delay between animation frames
+        }
+
+        stepDraw();
+    }
+
+    function replayAnimation() {
+        animatePoints();
+    }
+
+    // Run animation on load
+    window.onload = () => {
+        animatePoints();
+    };
+</script>
 
 </body>
 </html>
