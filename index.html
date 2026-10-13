@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cryptography & Statistics — Comprehensive Lecture Notes</title>
-    <!-- MathJax za elegantne matematičke formule -->
+    <title>HMWK 1 — Cryptography & Statistics</title>
+    <!-- MathJax za uredne matematičke formule -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <!-- Chart.js za interaktivni vizualni prikaz -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -30,7 +28,7 @@
         }
 
         .container {
-            max-width: 950px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -38,12 +36,12 @@
             text-align: center;
             margin-bottom: 40px;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 25px;
+            padding-bottom: 20px;
         }
 
         h1 {
             color: var(--accent-color);
-            font-size: 2.3rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
         }
 
@@ -54,20 +52,14 @@
             padding: 25px;
             margin-bottom: 25px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-color);
         }
 
         h2 {
             color: var(--accent-color);
             margin-top: 0;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            font-size: 1.4rem;
+            padding-bottom: 8px;
+            font-size: 1.3rem;
         }
 
         table {
@@ -87,13 +79,13 @@
             color: var(--accent-color);
         }
 
-        .formula-box {
-            background: rgba(15, 23, 42, 0.6);
-            border-left: 4px solid var(--accent-color);
-            padding: 12px 18px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-            font-family: monospace;
+        .badge {
+            display: inline-block;
+            background: #0284c7;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
         }
 
         ul {
@@ -103,119 +95,89 @@
         li {
             margin-bottom: 8px;
         }
-
-        canvas {
-            max-width: 100%;
-            margin-top: 15px;
-            background: #0f172a;
-            border-radius: 8px;
-            padding: 10px;
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Cryptography & Applied Statistics</h1>
-        <p style="color: var(--text-secondary);">Comprehensive Overview: Perfect Secrecy, MACs, Pairwise Independence & Leftover Hash Lemma</p>
+        <h1>HMWK 1 — Public-Key Cryptography</h1>
+        <p style="color: var(--text-secondary);">Elliptic-Curve Scalar Multiplication over Finite Field \(\mathbb{Z}_{17}\)</p>
     </header>
 
-    <!-- Section 1: Symmetric Encryption & Perfect Secrecy -->
+    <!-- Section 1: Introduction -->
     <div class="card">
-        <h2>1. Symmetric Encryption & Perfect Secrecy (Shannon)</h2>
-        <p><strong>Model:</strong> Alice wants to send message \(m \in \mathcal{M}\) to Bob using shared secret key \(k \in \mathcal{K}\) chosen uniformly at random (\(k \leftarrow \mathcal{K}\)).</p>
-        <div class="formula-box">
-            \(\text{Enc} : \mathcal{K} \times \mathcal{M} \to \mathcal{C}, \quad \text{Dec} : \mathcal{K} \times \mathcal{C} \to \mathcal{M}\)<br>
-            \(\text{Correctness: } \forall k \in \mathcal{K}, \forall m \in \mathcal{M}, \;\; \text{Dec}(k, \text{Enc}(k, m)) = m\)
-        </div>
-        <p><strong>Definition of Perfect Secrecy:</strong> An encryption scheme \(\Pi = (\text{Enc}, \text{Dec})\) is perfectly secret if for all message distributions, messages \(m\), and ciphertexts \(c\):</p>
-        <div class="formula-box">
-            \(\Pr[M = m] = \Pr[M = m \mid C = c]\)
-        </div>
+        <h2>1. Theoretical Background</h2>
+        <p>Elliptic-curve scalar multiplication serves as a fundamental cryptographic one-way function. It is efficient to compute in the forward direction (\(k \to Q = kG\)), while reversing it—known as the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>—is computationally intractable for large prime fields.</p>
     </div>
 
-    <!-- Section 2: Message Authentication Codes (MACs) & Forgery -->
+    <!-- Section 2: Parameters -->
     <div class="card">
-        <h2>2. Message Authentication Codes (MACs) & Security</h2>
-        <p>Unlike encryption (which hides content), MACs ensure <strong>integrity and authenticity</strong> over public channels using tags \(\tau = \text{Tag}(K, m)\).</p>
+        <h2>2. Toy Curve Parameters</h2>
         <ul>
-            <li><strong>Adversary's Goal (Eve):</strong> Intercepts a valid pair \((m, \tau)\) and attempts to forge a valid tag \(\tau'\) for a distinct message \(m' \ne m\).</li>
-            <li><strong>\(\epsilon\)-Statistical Security:</strong> A MAC scheme is \(\epsilon\)-secure if the probability of a successful one-time forgery is bounded by a negligible value \(\epsilon\) (e.g., \(2^{-80}\) or \(2^{-128}\)):</li>
+            <li><strong>Curve Equation:</strong> \(y^2 = x^3 + 7 \pmod{17}\)</li>
+            <li><strong>Base Generator Point (\(G\)):</strong> \((1, 5)\)</li>
+            <li><strong>Private Key (\(k\)):</strong> <span class="badge">6</span></li>
         </ul>
-        <div class="formula-box">
-            \(\Pr[\tau' = \text{Tag}(K, m') \mid \tau = \text{Tag}(K, m)] \le \epsilon\)
-        </div>
     </div>
 
-    <!-- Section 3: Pairwise Independent Hash Families & Linear Proof -->
+    <!-- Section 3: Step-by-Step Computation -->
     <div class="card">
-        <h2>3. Affine Hash Functions & Pairwise Independence</h2>
-        <p>A concrete construction of a pairwise independent hash family over a prime field \(\mathbb{Z}_p\) (\(\lambda\)-bit prime):</p>
-        <div class="formula-box">
-            \(h_{a,b}(m) = a \cdot m + b \pmod p \quad \text{where } (a,b) \in \mathcal{K} = \mathbb{Z}_p^2\)
-        </div>
-        <p><strong>Matrix Proof of Independence:</strong> For distinct messages \(m \ne m'\) and target tags \(\tau, \tau'\):</p>
-        <div class="formula-box">
-            \(\begin{pmatrix} m & 1 \\ m' & 1 \end{pmatrix} \begin{pmatrix} a \\ b \end{pmatrix} = \begin{pmatrix} \tau \\ \tau' \end{pmatrix} \pmod p\)
-        </div>
-        <p>Since \(m \ne m'\), the matrix determinant is non-zero, ensuring the <strong>inverse exists</strong> and yielding exactly 1 unique key pair out of \(p^2\):</p>
-        <div class="formula-box">
-            \(\Pr_{a,b}[h_{a,b}(m) = \tau \land h_{a,b}(m') = \tau'] = \frac{1}{p^2} = \frac{1}{|\mathcal{T}|^2}\)
-        </div>
+        <h2>3. Step-by-Step Scalar Multiplication (\(Q = 6G\))</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>Calculated Point \((x, y)\)</th>
+                    <th>Operation Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>\(1G\)</td>
+                    <td>\((1, 5)\)</td>
+                    <td>Base Point Generator</td>
+                </tr>
+                <tr>
+                    <td>\(2G\)</td>
+                    <td>\((2, 10)\)</td>
+                    <td>Point Doubling (\(2G = G + G\))</td>
+                </tr>
+                <tr>
+                    <td>\(3G\)</td>
+                    <td>\((5, 9)\)</td>
+                    <td>Point Addition (\(2G + G\))</td>
+                </tr>
+                <tr>
+                    <td>\(4G\)</td>
+                    <td>\((12, 1)\)</td>
+                    <td>Point Addition (\(3G + G\))</td>
+                </tr>
+                <tr>
+                    <td>\(5G\)</td>
+                    <td>\((12, 16)\)</td>
+                    <td>Point Addition (\(4G + G\))</td>
+                </tr>
+                <tr style="background-color: var(--highlight-bg);">
+                    <td><strong>\(6G\)</strong></td>
+                    <td><strong>\((5, 8)\)</strong></td>
+                    <td><strong>Final Public Key (\(Q\))</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 20px;"><strong>Resulting Toy Public Key (\(Q\)):</strong> <span class="badge">(5, 8)</span></p>
     </div>
 
-    <!-- Section 4: Seeded Extractors & Leftover Hash Lemma (LHL) -->
+    <!-- Section 4: Statistical Exploration -->
     <div class="card">
-        <h2>4. Seeded Extractors & Leftover Hash Lemma</h2>
-        <p>Extracting uniform random bits from a weak entropy source \(X\) with min-entropy \(H_\infty(X) \ge k\) using a public seed \(S \in \{0,1\}^d\):</p>
-        <div class="formula-box">
-            \(\text{Ext}(S, X) = h_S(X) \quad \implies \quad (S, \text{Ext}(S,X)) \approx_\epsilon (S, U_l)\)
-        </div>
-        <p><strong>Entropy Gap Requirement (LHL):</strong> To achieve an \(\epsilon\)-statistical distance bound, the min-entropy must satisfy:</p>
-        <div class="formula-box">
-            \(k \ge l + 2 \log_2(1/\epsilon) - 2\)
-        </div>
-    </div>
-
-    <!-- Section 5: Interactive Visual Chart -->
-    <div class="card">
-        <h2>5. Statistical Distribution Overview</h2>
-        <p>Visualizing error probability bounds versus security parameters (\(\log_2(1/\epsilon)\)):</p>
-        <canvas id="securityChart" width="400" height="180"></canvas>
+        <h2>4. Statistical Exploration & Findings</h2>
+        <ul>
+            <li><strong>Coordinate Distribution:</strong> The resulting sequence of coordinates spreads pseudo-randomly across the finite field \(\mathbb{Z}_{17}\).</li>
+            <li><strong>Avalanche Behavior:</strong> Modifying the private key \(k\) shifts the resulting point drastically across the curve due to the non-linear algebraic group laws.</li>
+            <li><strong>Real-world Relevance:</strong> Ethereum and Bitcoin utilize the exact same algebraic principles via the standardized \(\text{secp256k1}\) curve over a 256-bit prime field.</li>
+        </ul>
     </div>
 </div>
-
-<script>
-    // Chart.js Security Parameters Visualization
-    const ctx = document.getElementById('securityChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Toy Model', 'Standard Security', 'High Security', 'Maximum (AES-level)'],
-            datasets: [{
-                label: 'Log2(1/epsilon) Security Level',
-                data: [16, 80, 128, 256],
-                borderColor: '#38bdf8',
-                backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 6,
-                pointBackgroundColor: '#38bdf8'
-            }]
-        },
-        options: {
-            scales: {
-                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' }, title: { display: true, text: 'Bits of Security', color: '#94a3b8' } }
-            },
-            plugins: {
-                legend: { labels: { color: '#f8fafc' } }
-            }
-        }
-    });
-</script>
 
 </body>
 </html>
