@@ -2,22 +2,220 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HMWK 1 — Public-Key Cryptography</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography & Statistics — Comprehensive Lecture Notes</title>
+    <!-- MathJax za elegantne matematičke formule -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js za interaktivni vizualni prikaz -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; color: #333; }
-        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #2c3e50; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --highlight-bg: rgba(56, 189, 248, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.3rem;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+        }
+
+        .formula-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 4px solid var(--accent-color);
+            padding: 12px 18px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        canvas {
+            max-width: 100%;
+            margin-top: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>HMWK 1 — Public-Key Cryptography in Ethereum</h1>
-    <h2>Toy Curve Parameters</h2>
-    <p><b>Curve Equation:</b> y<sup>2</sup> = x<sup>3</sup> + 7 (mod 17)</p>
-    <p><b>Base Point G:</b> (1, 5)</p>
-    <p><b>Private Key k:</b> 6</p>
-    <h2>Result</h2>
-    <p><b>Toy Public Key Q (6G):</b> (5, 8)</p>
+    <header>
+        <h1>Cryptography & Applied Statistics</h1>
+        <p style="color: var(--text-secondary);">Comprehensive Overview: Perfect Secrecy, MACs, Pairwise Independence & Leftover Hash Lemma</p>
+    </header>
+
+    <!-- Section 1: Symmetric Encryption & Perfect Secrecy -->
+    <div class="card">
+        <h2>1. Symmetric Encryption & Perfect Secrecy (Shannon)</h2>
+        <p><strong>Model:</strong> Alice wants to send message \(m \in \mathcal{M}\) to Bob using shared secret key \(k \in \mathcal{K}\) chosen uniformly at random (\(k \leftarrow \mathcal{K}\)).</p>
+        <div class="formula-box">
+            \(\text{Enc} : \mathcal{K} \times \mathcal{M} \to \mathcal{C}, \quad \text{Dec} : \mathcal{K} \times \mathcal{C} \to \mathcal{M}\)<br>
+            \(\text{Correctness: } \forall k \in \mathcal{K}, \forall m \in \mathcal{M}, \;\; \text{Dec}(k, \text{Enc}(k, m)) = m\)
+        </div>
+        <p><strong>Definition of Perfect Secrecy:</strong> An encryption scheme \(\Pi = (\text{Enc}, \text{Dec})\) is perfectly secret if for all message distributions, messages \(m\), and ciphertexts \(c\):</p>
+        <div class="formula-box">
+            \(\Pr[M = m] = \Pr[M = m \mid C = c]\)
+        </div>
+    </div>
+
+    <!-- Section 2: Message Authentication Codes (MACs) & Forgery -->
+    <div class="card">
+        <h2>2. Message Authentication Codes (MACs) & Security</h2>
+        <p>Unlike encryption (which hides content), MACs ensure <strong>integrity and authenticity</strong> over public channels using tags \(\tau = \text{Tag}(K, m)\).</p>
+        <ul>
+            <li><strong>Adversary's Goal (Eve):</strong> Intercepts a valid pair \((m, \tau)\) and attempts to forge a valid tag \(\tau'\) for a distinct message \(m' \ne m\).</li>
+            <li><strong>\(\epsilon\)-Statistical Security:</strong> A MAC scheme is \(\epsilon\)-secure if the probability of a successful one-time forgery is bounded by a negligible value \(\epsilon\) (e.g., \(2^{-80}\) or \(2^{-128}\)):</li>
+        </ul>
+        <div class="formula-box">
+            \(\Pr[\tau' = \text{Tag}(K, m') \mid \tau = \text{Tag}(K, m)] \le \epsilon\)
+        </div>
+    </div>
+
+    <!-- Section 3: Pairwise Independent Hash Families & Linear Proof -->
+    <div class="card">
+        <h2>3. Affine Hash Functions & Pairwise Independence</h2>
+        <p>A concrete construction of a pairwise independent hash family over a prime field \(\mathbb{Z}_p\) (\(\lambda\)-bit prime):</p>
+        <div class="formula-box">
+            \(h_{a,b}(m) = a \cdot m + b \pmod p \quad \text{where } (a,b) \in \mathcal{K} = \mathbb{Z}_p^2\)
+        </div>
+        <p><strong>Matrix Proof of Independence:</strong> For distinct messages \(m \ne m'\) and target tags \(\tau, \tau'\):</p>
+        <div class="formula-box">
+            \(\begin{pmatrix} m & 1 \\ m' & 1 \end{pmatrix} \begin{pmatrix} a \\ b \end{pmatrix} = \begin{pmatrix} \tau \\ \tau' \end{pmatrix} \pmod p\)
+        </div>
+        <p>Since \(m \ne m'\), the matrix determinant is non-zero, ensuring the <strong>inverse exists</strong> and yielding exactly 1 unique key pair out of \(p^2\):</p>
+        <div class="formula-box">
+            \(\Pr_{a,b}[h_{a,b}(m) = \tau \land h_{a,b}(m') = \tau'] = \frac{1}{p^2} = \frac{1}{|\mathcal{T}|^2}\)
+        </div>
+    </div>
+
+    <!-- Section 4: Seeded Extractors & Leftover Hash Lemma (LHL) -->
+    <div class="card">
+        <h2>4. Seeded Extractors & Leftover Hash Lemma</h2>
+        <p>Extracting uniform random bits from a weak entropy source \(X\) with min-entropy \(H_\infty(X) \ge k\) using a public seed \(S \in \{0,1\}^d\):</p>
+        <div class="formula-box">
+            \(\text{Ext}(S, X) = h_S(X) \quad \implies \quad (S, \text{Ext}(S,X)) \approx_\epsilon (S, U_l)\)
+        </div>
+        <p><strong>Entropy Gap Requirement (LHL):</strong> To achieve an \(\epsilon\)-statistical distance bound, the min-entropy must satisfy:</p>
+        <div class="formula-box">
+            \(k \ge l + 2 \log_2(1/\epsilon) - 2\)
+        </div>
+    </div>
+
+    <!-- Section 5: Interactive Visual Chart -->
+    <div class="card">
+        <h2>5. Statistical Distribution Overview</h2>
+        <p>Visualizing error probability bounds versus security parameters (\(\log_2(1/\epsilon)\)):</p>
+        <canvas id="securityChart" width="400" height="180"></canvas>
+    </div>
 </div>
+
+<script>
+    // Chart.js Security Parameters Visualization
+    const ctx = document.getElementById('securityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Toy Model', 'Standard Security', 'High Security', 'Maximum (AES-level)'],
+            datasets: [{
+                label: 'Log2(1/epsilon) Security Level',
+                data: [16, 80, 128, 256],
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 6,
+                pointBackgroundColor: '#38bdf8'
+            }]
+        },
+        options: {
+            scales: {
+                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' }, title: { display: true, text: 'Bits of Security', color: '#94a3b8' } }
+            },
+            plugins: {
+                legend: { labels: { color: '#f8fafc' } }
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
