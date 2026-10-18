@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMWK 2 — Randomness Extraction & Leftover Hash Lemma</title>
-    <!-- MathJax za formule -->
+    <title>HMWK 2 — From Wallet Seed to Ethereum Address</title>
+    <!-- MathJax za matematičke i statističke prikaze -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -15,6 +15,7 @@
             --text-color: #f3f4f6;
             --text-secondary: #9ca3af;
             --border-color: #1f2937;
+            --success-color: #10b981;
             --highlight-bg: rgba(56, 189, 248, 0.08);
         }
 
@@ -66,22 +67,53 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
-        h2 {
+        h2, h3 {
             color: var(--accent-color);
             margin-top: 0;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
-            font-size: 1.4rem;
         }
 
-        .formula-box {
+        h2 { font-size: 1.4rem; }
+        h3 { font-size: 1.1rem; border-bottom: none; margin-top: 20px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .pipeline-box {
             background: rgba(3, 7, 18, 0.7);
             border-left: 4px solid var(--accent-color);
-            padding: 15px 20px;
+            padding: 20px;
             margin: 18px 0;
             border-radius: 0 8px 8px 0;
             font-family: monospace;
-            overflow-x: auto;
+            white-space: pre-line;
+            color: var(--text-color);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0369a1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         ul {
@@ -89,7 +121,7 @@
         }
 
         li {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: var(--text-secondary);
         }
 
@@ -101,51 +133,95 @@
 <body>
 
 <div class="container">
-    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
-    
+    <a href="index.html" class="back-link">← Nazad na meni portfolija</a>
+
     <header>
-        <h1>HMWK 2 — Randomness Extraction & Leftover Hash Lemma</h1>
-        <p style="color: var(--text-secondary);">Advanced Cryptography & Information-Theoretic Security Foundations</p>
+        <h1>HMWK 2 — Od sjeme novčanika do Ethereum adrese</h1>
+        <p style="color: var(--text-secondary);">Hashing, izvođenje ključeva i kriptografske primitive u Ethereum ekosistemu</p>
     </header>
 
-    <!-- Section 1: Three Paradigms -->
+    <!-- Section 1: Pipeline Overview -->
     <div class="card">
-        <h2>1. Three Paradigms for Randomness Extraction</h2>
-        <p>To overcome fundamental extraction impossibilities, three primary lines of research exist in cryptography:</p>
+        <h2>1. Praktični kriptografski cjevovod u Ethereum novčanicima</h2>
+        <p>Ethereum novčanici prolaze kroz strukturiran i deterministički proces pretvaranja čitljivih riječi u kriptografski valjanu adresu. Pojednostavljeni cjevovod izgleda ovako:</p>
+        
+        <div class="pipeline-box">
+Mnemonic (BIP-39) 
+  ↓ 
+Seed (BIP-32 / BIP-44) 
+  ↓ 
+Private Key (secp256k1) 
+  ↓ 
+Public Key (secp256k1) 
+  ↓ 
+Ethereum Address (Keccak-256) 
+  ↓ 
+Checksummed Address (EIP-55)</div>
+
+        <h3>Uloga i svrha standarda i primitiva:</h3>
         <ul>
-            <li><strong>Multiple Independent Sources (2-Source Extractors):</strong> Assumes two or more statistically independent entropy sources to enable deterministic extraction without extra setup.</li>
-            <li><strong>Cryptographic Assumptions (Hash Functions):</strong> Applies cryptographic primitives (e.g., modeling hash functions as Random Oracles) under computational or structural assumptions.</li>
-            <li><strong>Seeded Extraction:</strong> Introduces a short, uniform, independent random string (a "seed") to act as a catalyst for extracting uniform bits from any weak source.</li>
+            <li><strong>BIP-39:</strong> Pretvara nasumični entropijski niz u čitljivu mnemoničku rečenicu (obično 12 do 24 riječi) i izvodi binarni seed (sjeme).</li>
+            <li><strong>BIP-32:</strong> Uvodi hijerarhijske determinističke (HD) novčanike, omogućavajući generiranje stabla ključeva iz jednog jedinog seeda.</li>
+            <li><strong>BIP-44:</strong> Definira standardnu stazu izvođenja (engl. <em>derivation path</em>) za multi-account strukture (npr. <code>m/44'/60'/0'/0/0</code>).</li>
+            <li><strong>secp256k1:</strong> Kriva eliptične krivulje koja definira odnos između privatnog i javnog ključa te se koristi za kreiranje digitalnih potpisa (ECDSA).</li>
+            <li><strong>Keccak-256:</strong> Kriptografska hash funkcija koja se koristi nad javnim ključem kako bi se izvela skraćena Ethereum adresa (uzimanjem posljednjih 20 bajtova).</li>
+            <li><strong>EIP-55:</strong> Mehanizam kodiranja mješovitim velika/mala slova (engl. <em>mixed-case checksum encoding</em>) radi detekcije grešaka pri unosu adresa.</li>
         </ul>
     </div>
 
-    <!-- Section 2: Formal Security & Statistical Distance -->
+    <!-- Section 2: Conceptual Distinctions -->
     <div class="card">
-        <h2>2. Formal Security & Statistical Distance</h2>
+        <h2>2. Ključne konceptualne razlike</h2>
+        <p>Radi preciznog razumijevanja sustava, nužno je jasno razlikovati sljedeće pojmove:</p>
         <ul>
-            <li><strong>Formal Security Condition:</strong> A seeded extractor requires that the joint distribution of the public seed \(S\) and extracted output \(\text{Ext}(S,X)\) is statistically \(\epsilon\)-close to a pair composed of \(S\) and an independent uniform string \(U_l\):</li>
+            <li><strong>Generiranje vs. Izvođenje ključeva (Key Generation & Derivation):</strong> Generiranje stvara izvorni tajni materijal nasumično (entropija), dok izvođenje (derivation) koristi determinističke funkcije (poput HMAC-SHA512 u BIP-32) da iz jednog korijena izvede mnoštvo pod-ključeva.</li>
+            <li><strong>Javno-ključna kriptografija (Public-Key Cryptography):</strong> Asimetrični sustav baziran na matematičkim problemima (poput ECDLP) gdje privatni ključ potpisuje, a javni provjerava.</li>
+            <li><strong>Hashing:</strong> Jednosmjerne funkcije koje preslikavaju podatke proizvoljne duljine u fiksnu duljinu (npr. Keccak-256), bez povrata u izvorni oblik.</li>
+            <li><strong>Checksums & Encoding:</strong> Dodavanje kontrolnih znamenki (kao u EIP-55) za sprečavanje ljudskih grešaka pri tipkanju i formatiranje zapisa radi lakšeg prijenosa.</li>
         </ul>
-        <div class="formula-box">
-            \((S, \text{Ext}(S,X)) \approx_\epsilon (S, U_l) \equiv U_{d+l}\)
-        </div>
-        <ul>
-            <li><strong>Information-Theoretic Security:</strong> Because security is statistical, even a computationally unbounded adversary \(\mathcal{A}\) cannot distinguish the extracted output from pure uniform randomness with advantage greater than \(\epsilon\).</li>
-            <li><strong>Statistical Distance Definition (\(SD\)):</strong> Defined via total variation distance:</li>
-        </ul>
-        <div class="formula-box">
-            \(SD(X; Y) = \frac{1}{2} \sum_z |\Pr[X = z] - \Pr[Y = z]| \le \epsilon\)
-        </div>
     </div>
 
-    <!-- Section 3: Leftover Hash Lemma -->
+    <!-- Section 3: Historical Context -->
     <div class="card">
-        <h2>3. The Leftover Hash Lemma (LHL)</h2>
-        <ul>
-            <li><strong>Core Significance:</strong> Demonstrates that pairwise independent hash families function as high-quality seeded extractors.</li>
-            <li><strong>Setup:</strong> Let \(\mathcal{H} = \{h_S : \{0,1\}^m \rightarrow \{0,1\}^l\}_{S \in \{0,1\}^d}\) be a family of pairwise independent hash functions indexed by public seed \(S\).</li>
-            <li><strong>Construction:</strong> Evaluating the hash function with seed \(S\) directly yields the extraction function \(\text{Ext}(S,X) = h_S(X)\).</li>
-        </ul>
+        <h2>3. Temporalni i povijesni kontekst</h2>
+        <p>Razvoj ovih tehnologija pratio je evoluciju moderne kriptografije i blockchain sustava:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Tehnologija / Standard</th>
+                    <th>Godina</th>
+                    <th>Opis i svrha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>RSA</strong></td><td>1977</td><td>Temeljni sustav javnog ključa (faktorizacija velikih brojeva).</td></tr>
+                <tr><td><strong>SHA-2 / SHA-512</strong></td><td>2001</td><td>Standardizirane hash funkcije od strane NIST-a.</td></tr>
+                <tr><td><strong>BIP-32</strong></td><td>2012</td><td>Uvođenje hijerarhijskih determinističkih (HD) novčanika.</td></tr>
+                <tr><td><strong>BIP-39</strong></td><td>2013</td><td>Mnemonički kodovi za lakše pamćenje i backup seed-a.</td></tr>
+                <tr><td><strong>BIP-44</strong></td><td>2014</td><td>Standardizacija staza za više računa i valuta.</td></tr>
+                <tr><td><strong>SHA-3 (Keccak)</strong></td><td>2015</td><td>NIST standardizacija bazirana na Keccak arhitekturi.</td></tr>
+                <tr><td><strong>EIP-55</strong></td><td>2016</td><td>Uvođenje checksum kodiranja za Ethereum adrese.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Keccak-256 vs. SHA3-256</h3>
+        <p>Iako su povijesno povezane, <strong>Keccak-256</strong> koju koristi Ethereum i finalni NIST-ov standard <strong>SHA3-256</strong> <em>nisu identični</em>. Dok je natjecanje za SHA-3 bilo u tijeku, Ethereum je usvojio originalnu Keccak specifikaciju prije nego što je NIST finalizirao parametre dopune (engl. <em>padding</em> / domain-separation). Zbog toga se rezultati hashiranja razlikuju.</p>
     </div>
+
+    <!-- Section 4: Architectural Design Rationale -->
+    <div class="card">
+        <h2>4. Zašto se koristi više različitih primitiva umjesto jedne?</h2>
+        <p>Modularni dizajn Ethereum novčanika ne oslanja se na jednu jedinu funkciju jer svaka komponenta rješava sasvim specifičan problem u sustavu:</p>
+        <ul>
+            <li><strong>BIP-39/32/44</strong> rješavaju problem <em>ljudskog sučelja i upravljanja ključevima</em> (kako zapamtiti novčanik i organizirati milijune adresa iz jedne baze).</li>
+            <li><strong>secp256k1</strong> rješava problem <em>matematičkog povjerenja i digitalnog potpisivanja</em> (garantira da samo vlasnik privatnog ključa može odobriti transakciju).</li>
+            <li><strong>Keccak-256</strong> osigurava <em>kriptografsku kompresiju i jednosmjernost</em> (pretvara glomazan javni ključ u kompaktan identifikator adrese).</li>
+            <li><strong>EIP-55</strong> služi isključivo kao <em>zaštita od tipfelera</em> (detekcija grešaka kod ručnog prepisivanja adresa promjenom veličine slova).</li>
+        </ul>
+        <p>Kombinacijom specijaliziranih alata postiže se optimalan omjer sigurnosti, performansi i korisničkog iskustva.</p>
+    </div>
+
 </div>
 
 </body>
