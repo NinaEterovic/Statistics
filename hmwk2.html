@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW2 — Elliptic Curves, Caesar Cipher & Cryptanalysis</title>
+    <!-- MathJax za matematičke formule -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #38bdf8;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
+            --highlight-bg: rgba(56, 189, 248, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .formula-box {
+            background: rgba(3, 7, 18, 0.7);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 18px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0369a1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+
+    <header>
+        <h1>HW2 — ECC Toy Scheme, Caesar Cipher & Cryptanalysis</h1>
+        <p style="color: var(--text-secondary);">Comparative Analysis, Statistical Cryptanalysis, and Key-Space Vulnerabilities</p>
+    </header>
+
+    <!-- Section 1: ECC Toy Scheme & Caesar Cipher -->
+    <div class="card">
+        <h2>1. ECC Toy Scheme vs. Caesar Cipher</h2>
+        <p><strong>ECC Toy Scheme:</strong> Built upon the elliptic curve model from Homework 1 (\(y^2 = x^3 + 7 \pmod{17}\) or restricted secp256k1 parameters). Encryption maps plaintext onto curve points or utilizes scalar multiplication for key agreement/ElGamal-like encryption, relying on the hardness of the ECDLP.</p>
+        <p><strong>The Caesar Cipher:</strong> A classical substitution cipher shifting alphabet characters by a fixed key \(k \in [0, 25]\):</p>
+        <div class="formula-box">
+            \(E(x) = (x + k) \pmod{26}, \quad D(x) = (x - k) \pmod{26}\)
+        </div>
+        <p><strong>Comparison:</strong> While ECC offers mathematical group-theoretic security and massive key spaces, the Caesar cipher has a tiny key space ($26$ possible keys) and preserves linguistic statistical properties in ciphertexts.</p>
+    </div>
+
+    <!-- Section 2: Statistical Cryptanalysis -->
+    <div class="card">
+        <h2>2. Statistical Cryptanalysis of the Caesar Cipher</h2>
+        <p>By exploiting the known frequency distribution of letters in natural languages (e.g., English where 'E' and 'T' have highest frequency), an attacker can compute chi-squared ($\chi^2$) statistics or letter counts over ciphertexts of varying lengths:</p>
+        <ul>
+            <li><strong>Effectiveness:</strong> Highly effective on long ciphertexts where frequency distributions closely match theoretical language statistics.</li>
+            <li><strong>Limitations:</strong> Extremely short ciphertexts lack sufficient statistical data, leading to false positives or ambiguous key recovery.</li>
+        </ul>
+    </div>
+
+    <!-- Section 3: Key-Space Attacks & ECC Vulnerabilities -->
+    <div class="card">
+        <h2>3. Restricted Key-Space Attack on ECC Toy Scheme</h2>
+        <p>Because the toy scheme restricts the private key \(k\) to a tiny range (to make manual/computational experiments feasible), an attacker can easily execute a <strong>brute-force search</strong>:</p>
+        <div class="formula-box">
+            \(\text{For each } k' \in [1, \text{Range}], \text{ compute } Q' = k' \cdot G \text{ until } Q' = Q\)
+        </div>
+        <p><strong>Why secure ECC is immune:</strong> Properly configured ECC schemes (like standard secp256k1) utilize a 256-bit private key space (\(\approx 2^{256}\)), making brute-force attacks computationally impossible even with all global computing power combined.</p>
+    </div>
+</div>
+
+</body>
+</html>
