@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HW1b — MACs & Pairwise Independence</title>
+    <title>HMWK 1b — Public-Key Cryptography & Applied Statistics</title>
     <!-- MathJax za napredne matematičke formule -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -75,6 +75,24 @@
             font-size: 1.4rem;
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
         .formula-box {
             background: rgba(3, 7, 18, 0.7);
             border-left: 4px solid var(--accent-color);
@@ -83,6 +101,56 @@
             border-radius: 0 8px 8px 0;
             font-family: monospace;
             overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0369a1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .success-badge {
+            background: #047857;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background: #030712;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+        }
+
+        canvas {
+            background: #030712;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .anim-btn {
+            background-color: var(--accent-color);
+            color: #030712;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+        }
+
+        .anim-btn:hover {
+            opacity: 0.9;
         }
 
         ul {
@@ -105,13 +173,61 @@
     <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
 
     <header>
-        <h1>HW1b — Statistical Foundations: MACs & Pairwise Independence</h1>
-        <p style="color: var(--text-secondary);">Message Authentication Codes, Affine Hash Functions, and Linear Algebra Proofs</p>
+        <h1>HMWK 1b — Public-Key Cryptography & Statistical Foundations</h1>
+        <p style="color: var(--text-secondary);">Elliptic-Curve Scalar Multiplication, MACs, & Pairwise Independence over Finite Fields</p>
     </header>
 
-    <!-- Section 1: Statistical Analysis & MAC Security -->
+    <!-- Section 1: Elliptic Curve Toy Parameters -->
     <div class="card">
-        <h2>1. Message Authentication Codes (MACs) & Security Bounds</h2>
+        <h2>1. Elliptic-Curve Cryptography & Toy Parameters</h2>
+        <p>Elliptic-curve scalar multiplication functions as a foundational cryptographic one-way operation. Computing the forward transformation (\(k \to Q = kG\)) is efficient, whereas reversing it—known as the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>—remains computationally intractable.</p>
+        <ul>
+            <li><strong>Curve Equation:</strong> \(y^2 = x^3 + 7 \pmod{17}\)</li>
+            <li><strong>Base Generator Point (\(G\)):</strong> <span class="badge">\((1, 5)\)</span></li>
+            <li><strong>Private Scalar Key (\(k\)):</strong> <span class="badge">6</span></li>
+        </ul>
+    </div>
+
+    <!-- Section 2: Animated Point Multiplication -->
+    <div class="card">
+        <h2>2. Animated Point Scalar Multiplication (\(Q = k \cdot G\))</h2>
+        <p>Visualizing the trajectory and scalar accumulation steps from \(1G\) through the group law operations up to the final public key point \(6G\):</p>
+        
+        <div class="canvas-container">
+            <canvas id="cryptoCanvas" width="500" height="400"></canvas>
+            <button class="anim-btn" onclick="replayAnimation()">Replay Animation 🔄</button>
+        </div>
+    </div>
+
+    <!-- Section 3: Computation Table -->
+    <div class="card">
+        <h2>3. Step-by-Step Computational Breakdown</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>Calculated Point \((x, y)\)</th>
+                    <th>Algebraic Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>\(1G\)</td><td>\((1, 5)\)</td><td>Base Generator Point</td></tr>
+                <tr><td>\(2G\)</td><td>\((2, 10)\)</td><td>Point Doubling (\(G + G\))</td></tr>
+                <tr><td>\(3G\)</td><td>\((5, 9)\)</td><td>Point Addition (\(2G + G\))</td></tr>
+                <tr><td>\(4G\)</td><td>\((12, 1)\)</td><td>Point Addition (\(3G + G\))</td></tr>
+                <tr><td>\(5G\)</td><td>\((12, 16)\)</td><td>Point Addition (\(4G + G\))</td></tr>
+                <tr style="background-color: rgba(16, 185, 129, 0.1);">
+                    <td><strong>\(6G\)</strong></td>
+                    <td><strong>\((5, 8)\)</strong></td>
+                    <td><strong>Final Public Key (\(Q\)) <span class="badge success-badge">Target</span></strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 4: Expanded Statistical Analysis & MAC Security -->
+    <div class="card">
+        <h2>4. Statistical Foundations: MACs & Pairwise Independence</h2>
         <p>Expanding into message integrity, authenticity, and statistical security bounds:</p>
         
         <ul>
@@ -121,21 +237,102 @@
         <div class="formula-box">
             \(\Pr[\tau' = \text{Tag}(K, m') \mid \tau = \text{Tag}(K, m)] \le \epsilon \quad (\text{e.g., } \epsilon = 2^{-80} \text{ or } 2^{-128})\)
         </div>
-    </div>
 
-    <!-- Section 2: Linear Algebra Proof -->
-    <div class="card">
-        <h2>2. Linear Algebra Proof of Pairwise Independence</h2>
+        <h3>Linear Algebra Proof of Pairwise Independence</h3>
         <p>Using affine hash functions over prime fields \(\mathbb{Z}_p\): \(h_{a,b}(m) = a \cdot m + b \pmod p\). To prove pairwise independence, we analyze the linear system:</p>
         <div class="formula-box">
             \(\begin{pmatrix} m & 1 \\ m' & 1 \end{pmatrix} \begin{pmatrix} a \\ b \end{pmatrix} = \begin{pmatrix} \tau \\ \tau' \end{pmatrix} \pmod p\)
         </div>
-        <p>Since \(m \ne m'\), the matrix determinant is non-zero (\(\det = m - m' \ne 0\)). This guarantees that the <strong>inverse exists</strong>, yielding a unique key pair \((a,b)\) out of \(p^2\) possibilities:</p>
+        <p>Since \(m \ne m'\), the matrix determinant is non-zero (\(\det = m - m' \ne 0\)). This guarantees that the <strong>inverse exists</strong>, yielding a unique key pair \((a,b)\) out of \(p^2$ possibilities:</p>
         <div class="formula-box">
-            \(\Pr_{a,b}[h_{a,b}(m) = \tau \land h_{a,b}(m') = \tau'] = \frac{1}{p^2} = \frac{1}{|\mathcal{T}|^2}\)
+            \(\Pr_{a,b}[h_{a,b}(m) = \tau \land h_{a,b}(m') = \tau'] = \frac{1}{p^2} = \frac{1}{\vert{}\mathcal{T}\vert{}^2}\)
         </div>
     </div>
 </div>
+
+<script>
+    const canvas = document.getElementById('cryptoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const points = [
+        { step: '1G', x: 1, y: 5, desc: '(1,5)' },
+        { step: '2G', x: 2, y: 10, desc: '(2,10)' },
+        { step: '3G', x: 5, y: 9, desc: '(5,9)' },
+        { step: '4G', x: 12, y: 1, desc: '(12,1)' },
+        { step: '5G', x: 12, y: 16, desc: '(12,16)' },
+        { step: '6G (Q)', x: 5, y: 8, desc: '(5,8) - Public Key' }
+    ];
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 1;
+
+        const scaleX = canvas.width / 18;
+        const scaleY = canvas.height / 18;
+
+        for (let i = 0; i <= 17; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * scaleX, 20);
+            ctx.lineTo(i * scaleX, canvas.height - 20);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(20, i * scaleY);
+            ctx.lineTo(canvas.width - 20, i * scaleY);
+            ctx.stroke();
+        }
+    }
+
+    function animatePoints() {
+        let currentIndex = 0;
+        const scaleX = canvas.width / 18;
+        const scaleY = canvas.height / 18;
+
+        function stepDraw() {
+            if (currentIndex >= points.length) return;
+            drawGrid();
+
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i <= currentIndex; i++) {
+                let px = 20 + points[i].x * (scaleX * 0.9);
+                let py = canvas.height - 20 - points[i].y * (scaleY * 0.9);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            for (let i = 0; i <= currentIndex; i++) {
+                let px = 20 + points[i].x * (scaleX * 0.9);
+                let py = canvas.height - 20 - points[i].y * (scaleY * 0.9);
+
+                ctx.fillStyle = (i === points.length - 1) ? '#10b981' : '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(px, py, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#f3f4f6';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.fillText(`${points[i].step} ${points[i].desc}`, px + 10, py - 5);
+            }
+
+            currentIndex++;
+            setTimeout(stepDraw, 800);
+        }
+        stepDraw();
+    }
+
+    /* Funkcija za ponavljanje animacije */
+    function replayAnimation() {
+        animatePoints();
+    }
+
+    window.onload = () => {
+        animatePoints();
+    };
+</script>
 
 </body>
 </html>
