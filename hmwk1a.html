@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMWK 1 — Public-Key Cryptography & Applied Statistics</title>
+    <title>HW1a — Public-Key Cryptography & Applied Statistics</title>
     <!-- MathJax za napredne matematičke formule -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -31,6 +31,18 @@
         .container {
             max-width: 950px;
             margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
         header {
@@ -105,7 +117,6 @@
             background: #047857;
         }
 
-        /* Canvas Container */
         .canvas-container {
             position: relative;
             width: 100%;
@@ -158,8 +169,10 @@
 <body>
 
 <div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+
     <header>
-        <h1>HMWK 1 — Public-Key Cryptography & Statistical Foundations</h1>
+        <h1>HW1a — Public-Key Cryptography & Statistical Foundations</h1>
         <p style="color: var(--text-secondary);">Elliptic-Curve Scalar Multiplication, MACs, & Pairwise Independence over Finite Fields</p>
     </header>
 
@@ -217,7 +230,7 @@
         <p>Expanding into message integrity, authenticity, and statistical security bounds:</p>
         
         <ul>
-            <li><strong>Adversary's Goal (Known-Pair Attack):</strong> Eve intercepts a valid transmitted pair \((m, \tau)\) where \(\tau = \text{Tag}(K, m)\). Without knowing the secret key \(K\), Eve attempts a forgery by generating a valid tag \(\tau'\) for a distinct message $m' \ne m$.</li>
+            <li><strong>Adversary's Goal (Known-Pair Attack):</strong> Eve intercepts a valid transmitted pair \((m, \tau)\) where \(\tau = \text{Tag}(K, m)\). Without knowing the secret key \(K\), Eve attempts a forgery by generating a valid tag \(\tau'\) for a distinct message \(m' \ne m\).</li>
             <li><strong>\(\epsilon\)-Statistical Security Definition:</strong> A MAC scheme is defined as \(\epsilon\)-statistically secure if the success probability of a one-time forgery is strictly bounded:</li>
         </ul>
         <div class="formula-box">
@@ -237,7 +250,6 @@
 </div>
 
 <script>
-    // Canvas Animation Script
     const canvas = document.getElementById('cryptoCanvas');
     const ctx = canvas.getContext('2d');
 
