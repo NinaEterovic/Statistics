@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HMWK 2 — From Wallet Seed to Ethereum Address</title>
-    <!-- MathJax za matematičke i statističke prikaze -->
+    <!-- MathJax for mathematical and statistical notation -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -133,17 +133,17 @@
 <body>
 
 <div class="container">
-    <a href="index.html" class="back-link">← Nazad na meni portfolija</a>
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
 
     <header>
-        <h1>HMWK 2 — Od sjeme novčanika do Ethereum adrese</h1>
-        <p style="color: var(--text-secondary);">Hashing, izvođenje ključeva i kriptografske primitive u Ethereum ekosistemu</p>
+        <h1>HMWK 2 — From Wallet Seed to Ethereum Address</h1>
+        <p style="color: var(--text-secondary);">Hashing, Key Derivation, and Cryptographic Primitives in the Ethereum Ecosystem</p>
     </header>
 
     <!-- Section 1: Pipeline Overview -->
     <div class="card">
-        <h2>1. Praktični kriptografski cjevovod u Ethereum novčanicima</h2>
-        <p>Ethereum novčanici prolaze kroz strukturiran i deterministički proces pretvaranja čitljivih riječi u kriptografski valjanu adresu. Pojednostavljeni cjevovod izgleda ovako:</p>
+        <h2>1. The Practical Cryptographic Pipeline in Ethereum Wallets</h2>
+        <p>Ethereum wallets follow a structured, deterministic pipeline to convert human-readable mnemonics into a cryptographically secure address. The simplified workflow proceeds as follows:</p>
         
         <div class="pipeline-box">
 Mnemonic (BIP-39) 
@@ -158,68 +158,68 @@ Ethereum Address (Keccak-256)
   ↓ 
 Checksummed Address (EIP-55)</div>
 
-        <h3>Uloga i svrha standarda i primitiva:</h3>
+        <h3>Role and Purpose of Standards and Primitives:</h3>
         <ul>
-            <li><strong>BIP-39:</strong> Pretvara nasumični entropijski niz u čitljivu mnemoničku rečenicu (obično 12 do 24 riječi) i izvodi binarni seed (sjeme).</li>
-            <li><strong>BIP-32:</strong> Uvodi hijerarhijske determinističke (HD) novčanike, omogućavajući generiranje stabla ključeva iz jednog jedinog seeda.</li>
-            <li><strong>BIP-44:</strong> Definira standardnu stazu izvođenja (engl. <em>derivation path</em>) za multi-account strukture (npr. <code>m/44'/60'/0'/0/0</code>).</li>
-            <li><strong>secp256k1:</strong> Kriva eliptične krivulje koja definira odnos između privatnog i javnog ključa te se koristi za kreiranje digitalnih potpisa (ECDSA).</li>
-            <li><strong>Keccak-256:</strong> Kriptografska hash funkcija koja se koristi nad javnim ključem kako bi se izvela skraćena Ethereum adresa (uzimanjem posljednjih 20 bajtova).</li>
-            <li><strong>EIP-55:</strong> Mehanizam kodiranja mješovitim velika/mala slova (engl. <em>mixed-case checksum encoding</em>) radi detekcije grešaka pri unosu adresa.</li>
+            <li><strong>BIP-39:</strong> Converts a random entropy bit-sequence into a human-readable mnemonic sentence (usually 12 to 24 words) and derives a binary seed.</li>
+            <li><strong>BIP-32:</strong> Introduces Hierarchical Deterministic (HD) wallets, allowing an entire tree of key pairs to be generated from a single root seed.</li>
+            <li><strong>BIP-44:</strong> Defines a standard derivation path structure for multi-account and multi-coin wallets (e.g., <code>m/44'/60'/0'/0/0</code>).</li>
+            <li><strong>secp256k1:</strong> An elliptic-curve standard that defines the algebraic relationship between private and public keys and enables digital signatures via ECDSA.</li>
+            <li><strong>Keccak-256:</strong> A cryptographic hash function applied to the public key to derive the truncated 20-byte Ethereum address.</li>
+            <li><strong>EIP-55:</strong> Mixed-case checksum encoding implemented to detect human typographical errors in Ethereum addresses.</li>
         </ul>
     </div>
 
     <!-- Section 2: Conceptual Distinctions -->
     <div class="card">
-        <h2>2. Ključne konceptualne razlike</h2>
-        <p>Radi preciznog razumijevanja sustava, nužno je jasno razlikovati sljedeće pojmove:</p>
+        <h2>2. Key Conceptual Distinctions</h2>
+        <p>To fully understand the architecture, it is essential to distinguish between the following core concepts:</p>
         <ul>
-            <li><strong>Generiranje vs. Izvođenje ključeva (Key Generation & Derivation):</strong> Generiranje stvara izvorni tajni materijal nasumično (entropija), dok izvođenje (derivation) koristi determinističke funkcije (poput HMAC-SHA512 u BIP-32) da iz jednog korijena izvede mnoštvo pod-ključeva.</li>
-            <li><strong>Javno-ključna kriptografija (Public-Key Cryptography):</strong> Asimetrični sustav baziran na matematičkim problemima (poput ECDLP) gdje privatni ključ potpisuje, a javni provjerava.</li>
-            <li><strong>Hashing:</strong> Jednosmjerne funkcije koje preslikavaju podatke proizvoljne duljine u fiksnu duljinu (npr. Keccak-256), bez povrata u izvorni oblik.</li>
-            <li><strong>Checksums & Encoding:</strong> Dodavanje kontrolnih znamenki (kao u EIP-55) za sprečavanje ljudskih grešaka pri tipkanju i formatiranje zapisa radi lakšeg prijenosa.</li>
+            <li><strong>Key Generation vs. Key Derivation:</strong> Generation creates foundational secret material randomly using system entropy, whereas derivation uses deterministic functions (such as HMAC-SHA512 in BIP-32) to compute child keys systematically from a parent root.</li>
+            <li><strong>Public-Key Cryptography:</strong> An asymmetric cryptographic system based on hard mathematical problems (like the ECDLP) where private keys sign and public keys verify.</li>
+            <li><strong>Hashing:</strong> One-way cryptographic functions that map arbitrary-length inputs to fixed-length outputs (e.g., Keccak-256) with no feasible inverse.</li>
+            <li><strong>Checksums & Encoding:</strong> Mechanisms like EIP-55 that append error-detection markers and format byte arrays for safe transmission and user display.</li>
         </ul>
     </div>
 
     <!-- Section 3: Historical Context -->
     <div class="card">
-        <h2>3. Temporalni i povijesni kontekst</h2>
-        <p>Razvoj ovih tehnologija pratio je evoluciju moderne kriptografije i blockchain sustava:</p>
+        <h2>3. Temporal and Historical Context</h2>
+        <p>The evolution of these cryptographic standards spans several decades of foundational research and blockchain development:</p>
         
         <table>
             <thead>
                 <tr>
-                    <th>Tehnologija / Standard</th>
-                    <th>Godina</th>
-                    <th>Opis i svrha</th>
+                    <th>Technology / Standard</th>
+                    <th>Year</th>
+                    <th>Description and Purpose</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td><strong>RSA</strong></td><td>1977</td><td>Temeljni sustav javnog ključa (faktorizacija velikih brojeva).</td></tr>
-                <tr><td><strong>SHA-2 / SHA-512</strong></td><td>2001</td><td>Standardizirane hash funkcije od strane NIST-a.</td></tr>
-                <tr><td><strong>BIP-32</strong></td><td>2012</td><td>Uvođenje hijerarhijskih determinističkih (HD) novčanika.</td></tr>
-                <tr><td><strong>BIP-39</strong></td><td>2013</td><td>Mnemonički kodovi za lakše pamćenje i backup seed-a.</td></tr>
-                <tr><td><strong>BIP-44</strong></td><td>2014</td><td>Standardizacija staza za više računa i valuta.</td></tr>
-                <tr><td><strong>SHA-3 (Keccak)</strong></td><td>2015</td><td>NIST standardizacija bazirana na Keccak arhitekturi.</td></tr>
-                <tr><td><strong>EIP-55</strong></td><td>2016</td><td>Uvođenje checksum kodiranja za Ethereum adrese.</td></tr>
+                <tr><td><strong>RSA</strong></td><td>1977</td><td>Seminal public-key cryptosystem based on integer factorization.</td></tr>
+                <tr><td><strong>SHA-2 / SHA-512</strong></td><td>2001</td><td>NIST-standardized secure hash algorithms.</td></tr>
+                <tr><td><strong>BIP-32</strong></td><td>2012</td><td>Introduction of Hierarchical Deterministic wallets.</td></tr>
+                <tr><td><strong>BIP-39</strong></td><td>2013</td><td>Mnemonic code phrases for deterministic seed backup.</td></tr>
+                <tr><td><strong>BIP-44</strong></td><td>2014</td><td>Multi-account derivation path standardization.</td></tr>
+                <tr><td><strong>SHA-3 (Keccak)</strong></td><td>2015</td><td>NIST standard based on the Keccak submission.</td></tr>
+                <tr><td><strong>EIP-55</strong></td><td>2016</td><td>Mixed-case checksum encoding for Ethereum addresses.</td></tr>
             </tbody>
         </table>
 
         <h3>Keccak-256 vs. SHA3-256</h3>
-        <p>Iako su povijesno povezane, <strong>Keccak-256</strong> koju koristi Ethereum i finalni NIST-ov standard <strong>SHA3-256</strong> <em>nisu identični</em>. Dok je natjecanje za SHA-3 bilo u tijeku, Ethereum je usvojio originalnu Keccak specifikaciju prije nego što je NIST finalizirao parametre dopune (engl. <em>padding</em> / domain-separation). Zbog toga se rezultati hashiranja razlikuju.</p>
+        <p>Although historically related and sharing the same underlying design family, Ethereum's <strong>Keccak-256</strong> and the final NIST-standardized <strong>SHA3-256</strong> are <em>not identical</em>. Ethereum adopted the Keccak function before NIST finalized its parameter padding and domain-separation conventions, resulting in differing hash outputs for the same input.</p>
     </div>
 
     <!-- Section 4: Architectural Design Rationale -->
     <div class="card">
-        <h2>4. Zašto se koristi više različitih primitiva umjesto jedne?</h2>
-        <p>Modularni dizajn Ethereum novčanika ne oslanja se na jednu jedinu funkciju jer svaka komponenta rješava sasvim specifičan problem u sustavu:</p>
+        <h2>4. Why Use Multiple Primitives Instead of One?</h2>
+        <p>The modular design of Ethereum wallets avoids relying on a single monolithic algorithm because each layer solves a distinct engineering and security problem:</p>
         <ul>
-            <li><strong>BIP-39/32/44</strong> rješavaju problem <em>ljudskog sučelja i upravljanja ključevima</em> (kako zapamtiti novčanik i organizirati milijune adresa iz jedne baze).</li>
-            <li><strong>secp256k1</strong> rješava problem <em>matematičkog povjerenja i digitalnog potpisivanja</em> (garantira da samo vlasnik privatnog ključa može odobriti transakciju).</li>
-            <li><strong>Keccak-256</strong> osigurava <em>kriptografsku kompresiju i jednosmjernost</em> (pretvara glomazan javni ključ u kompaktan identifikator adrese).</li>
-            <li><strong>EIP-55</strong> služi isključivo kao <em>zaštita od tipfelera</em> (detekcija grešaka kod ručnog prepisivanja adresa promjenom veličine slova).</li>
+            <li><strong>BIP-39/32/44</strong> handle <em>key management, backup usability, and hierarchical organization</em>.</li>
+            <li><strong>secp256k1</strong> guarantees <em>mathematical trust and digital signature authenticity</em>.</li>
+            <li><strong>Keccak-256</strong> provides <em>cryptographic compression, collision resistance, and one-way address mapping</em>.</li>
+            <li><strong>EIP-55</strong> acts strictly as a <em>human-error checksum mechanism</em> for address transcription.</li>
         </ul>
-        <p>Kombinacijom specijaliziranih alata postiže se optimalan omjer sigurnosti, performansi i korisničkog iskustva.</p>
+        <p>Combining these specialized primitives ensures optimal performance, strict security boundaries, and robust user experience across the entire lifecycle of a transaction.</p>
     </div>
 
 </div>
