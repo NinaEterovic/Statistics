@@ -32,7 +32,7 @@
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
         }
 
@@ -45,6 +45,7 @@
         p {
             color: var(--text-secondary);
             margin-bottom: 30px;
+            font-size: 0.95rem;
         }
 
         .menu-links {
@@ -63,6 +64,10 @@
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .btn:hover {
@@ -71,17 +76,38 @@
             border-color: var(--accent-color);
             transform: translateY(-2px);
         }
+
+        .badge {
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        
+        .btn:hover .badge {
+            background: rgba(11, 15, 25, 0.15);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Cryptography & Statistics</h1>
-    <p>Select an assignment below to view the interactive notes and reports:</p>
+    <p>Interactive Homework Portfolio & Reports</p>
     
     <div class="menu-links">
-        <a href="hmwk1.html" class="btn">📂 Homework 1: Elliptic Curves & MACs</a>
-        <a href="hmwk2.html" class="btn">📂 Homework 2: Randomness Extraction & LHL</a>
+        <a href="hw1a.html" class="btn">
+            <span>📂 HW1a: Elliptic Curves & Scalar Mult.</span>
+            <span class="badge">Part 1</span>
+        </a>
+        <a href="hw1b.html" class="btn">
+            <span>📂 HW1b: MACs & Affine Hash Functions</span>
+            <span class="badge">Part 2</span>
+        </a>
+        <a href="hw2.html" class="btn">
+            <span>📂 HW2: ECC, Caesar Cipher & Cryptanalysis</span>
+            <span class="badge">New</span>
+        </a>
     </div>
 </div>
 
