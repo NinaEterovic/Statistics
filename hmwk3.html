@@ -113,10 +113,6 @@
             font-size: 0.9rem;
         }
 
-        .success-badge {
-            background: #047857;
-        }
-
         .canvas-container {
             position: relative;
             width: 100%;
@@ -142,17 +138,32 @@
             margin-top: 15px;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        select, .anim-btn {
+            background-color: #1e293b;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
         }
 
         .anim-btn {
             background-color: var(--accent-color);
             color: #030712;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            margin-top: auto;
         }
 
         .anim-btn:hover {
@@ -186,74 +197,97 @@
     <!-- Section 1: Modeling Framework -->
     <div class="card">
         <h2>1. Stochastic Modeling Framework ($n$ Systems & $m$ Attackers)</h2>
-        <p>To analyze the dynamics of cybersecurity penetration processes across multiple systems and attackers, we model the cumulative score using independent and identically distributed (i.i.d.) random increments \(X_1, X_2, \dots, X_n\).</p>
+        <p>We model the penetration score using independent and identically distributed (i.i.d.) random increments \(X_1, X_2, \dots, X_n\):</p>
         <ul>
-            <li><strong>Bernoulli Model:</strong> Increments represent success/failure at each step, where \(X_i \in \{0, 1\}\) with probability \(\Pr(X_i = 1) = p\) and \(\Pr(X_i = 0) = 1 - p\).</li>
-            <li><strong>Rademacher Model:</strong> Introduced to study the symmetric, zero-mean case, where \(X_i \in \{-1, +1\}\) with equal probability \(\Pr(X_i = +1) = \Pr(X_i = -1) = 1/2\).</li>
+            <li><strong>Bernoulli Model:</strong> \(X_i \in \{0, 1\}\) with \(\Pr(X_i = 1) = p\). Represents asymmetric success/failure steps.</li>
+            <li><strong>Rademacher Model:</strong> \(X_i \in \{-1, +1\}\) with \(\Pr(X_i = +1) = \Pr(X_i = -1) = 1/2\). Represents a symmetric, zero-mean case.</li>
         </ul>
     </div>
 
     <!-- Section 2: Interactive Simulation -->
     <div class="card">
         <h2>2. Interactive Trajectory Simulation</h2>
-        <p>Simulating multiple sample trajectories (\(m\) attackers) over \(n\) penetration steps. Observe how fluctuations scale under different normalizations:</p>
+        <p>Simulate multiple sample trajectories (\(m\) attackers) over \(n\) steps with configurable parameters:</p>
         
         <div class="canvas-container">
             <canvas id="simCanvas" width="600" height="350"></canvas>
+            
             <div class="controls">
-                <button class="anim-btn" onclick="runSimulation('bernoulli')">Run Bernoulli Simulation</button>
-                <button class="anim-btn" onclick="runSimulation('rademacher')" style="background-color: #10b981; color: white;">Run Rademacher Simulation</button>
+                <div class="control-group">
+                    <label>Model:</label>
+                    <select id="modelSelect">
+                        <option value="rademacher">Rademacher Model (\(\pm 1\))</option>
+                        <option value="bernoulli">Centered Bernoulli Model (\(0, 1\))</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Steps (\(n\)):</label>
+                    <select id="stepsSelect">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Attackers (\(m\)):</label>
+                    <select id="pathsSelect">
+                        <option value="5">5 paths</option>
+                        <option value="50" selected>50 paths</option>
+                        <option value="500">500 paths</option>
+                    </select>
+                </div>
+
+                <button class="anim-btn" onclick="runSimulation()">Run Simulation 🔄</button>
             </div>
         </div>
     </div>
 
-    <!-- Section 3: Quantities of Interest -->
+    <!-- Section 3: Variance & Limit Theorems -->
     <div class="card">
-        <h2>3. Quantities of Interest & Statistical Analysis</h2>
-        <p>We analyze the distribution and asymptotic behavior of three key aggregate metrics as the number of steps \(n\) increases:</p>
+        <h2>3. Variance Analysis & Limit Theorems</h2>
+        <p>Behavior of the aggregate quantities under different normalizations and theoretical convergence:</p>
         
         <table>
             <thead>
                 <tr>
                     <th>Quantity</th>
-                    <th>Mathematical Expression</th>
-                    <th>Asymptotic Behavior & Statistical Meaning</th>
+                    <th>Variance (\(\sigma^2\) parameter)</th>
+                    <th>Asymptotic Behavior & Limit Theorems</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>Total Score</strong></td>
-                    <td>\(S_n = \sum_{i=1}^n X_i\)</td>
-                    <td>Grows linearly with \(n\); variance scales as \(\mathcal{O}(n)\). Reflects cumulative penetration depth.</td>
+                    <td><strong>Total Score</strong> (\(S_n\))</td>
+                    <td>\(n \sigma^2\) (grows linearly)</td>
+                    <td>Reflects cumulative penetration depth.</td>
                 </tr>
                 <tr>
-                    <td><strong>Average Score</strong></td>
-                    <td>\(\frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^n X_i\)</td>
-                    <td>Converges in probability to the expected value \(\mathbb{E}[X_1]\) according to the <strong>Law of Large Numbers (LLN)</strong>.</td>
+                    <td><strong>Average Score</strong> (\(S_n / n\))</td>
+                    <td>\(\frac{\sigma^2}{n}\) (tends to 0)</td>
+                    <td>Converges in probability to \(\mu\) via the <strong>Law of Large Numbers (LLN)</strong>.</td>
                 </tr>
                 <tr>
-                    <td><strong>Normalized Total Score</strong></td>
-                    <td>\(\frac{S_n}{\sqrt{n}} = \frac{1}{\sqrt{n}} \sum_{i=1}^n X_i\)</td>
-                    <td>Converges in distribution to a normal distribution \(\mathcal{N}(0, \sigma^2)\) according to the <strong>Central Limit Theorem (CLT)</strong>.</td>
+                    <td><strong>Normalized Score</strong></td>
+                    <td>\(\sigma^2\) (constant variance)</td>
+                    <td>
+                        Converges in distribution to \(\mathcal{N}(0,1)\) via <strong>Central Limit Theorem (CLT)</strong>:<br>
+                        • <em>Rademacher:</em> \(\frac{S_n}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1)\)<br>
+                        • <em>Bernoulli:</em> \(\frac{S_n - np}{\sqrt{np(1-p)}} \xrightarrow{d} \mathcal{N}(0, 1)\)
+                    </td>
                 </tr>
             </tbody>
         </table>
-
-        <div class="formula-box">
-            <strong>Law of Large Numbers:</strong> \(\lim_{n \to \infty} \Pr\left(\left|\frac{S_n}{n} - \mu\right| > \varepsilon\right) = 0 \quad (\text{where } \mu = \mathbb{E}[X])\)
-        </div>
-        <div class="formula-box">
-            <strong>Central Limit Theorem (Rademacher Case):</strong> \(\frac{S_n}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1) \quad \text{as } n \to \infty\)
-        </div>
     </div>
 
-    <!-- Section 4: Interpretation & System Dynamics -->
+    <!-- Section 4: Interpretation -->
     <div class="card">
-        <h2>4. Interpretation in the Context of Systems and Attackers</h2>
+        <h2>4. Interpretation of System Size (\(n\)) and Attackers (\(m\))</h2>
         <ul>
-            <li><strong>System Size (\(n\)):</strong> Represents the depth or sequence of security barriers. As \(n\) increases, individual anomalies smooth out, and aggregate behavior becomes highly predictable due to LLN.</li>
-            <li><strong>Number of Attackers (\(m\)):</strong> Represents parallel sample paths. Running multiple trajectories illustrates the spread of outcomes around the expected mean.</li>
-            <li><strong>Variance & Normalization:</strong> Without division by \(\sqrt{n}\), the variance of \(S_n\) diverges as \(n\) grows. Normalizing by \(\sqrt{n}\) stabilizes the scale, allowing direct observation of bell-curve convergence via the CLT.</li>
+            <li><strong>System Size (\(n\)):</strong> Determines the depth of security barriers in a single trajectory. As \(n \to \infty\), averages stabilize and normalized distributions converge to standard normal.</li>
+            <li><strong>Number of Attackers (\(m\)):</strong> Represents independent simulation realizations. Larger \(m\) provides a clearer empirical picture of the statistical distribution without altering the theoretical properties of a single path.</li>
         </ul>
     </div>
 </div>
@@ -267,7 +301,7 @@
         ctx.strokeStyle = '#1f2937';
         ctx.lineWidth = 1;
         
-        // Draw coordinate axes
+        // Axes
         ctx.beginPath();
         ctx.moveTo(50, 20);
         ctx.lineTo(50, canvas.height - 30);
@@ -275,39 +309,44 @@
         ctx.stroke();
     }
 
-    function runSimulation(model) {
+    function runSimulation() {
         drawGrid();
-        const steps = 50;
-        const paths = 5; // m attackers
-        const dx = (canvas.width - 80) / steps;
+        const model = document.getElementById('modelSelect').value;
+        const steps = parseInt(document.getElementById('stepsSelect').value);
+        const paths = parseInt(document.getElementById('pathsSelect').value);
+        
+        const dx = (canvas.width - 70) / steps;
         const centerY = canvas.height / 2;
 
         ctx.font = '12px Inter, sans-serif';
         ctx.fillStyle = '#9ca3af';
-        ctx.fillText(`Model: ${model.toUpperCase()} (m = ${paths} attackers, n = ${steps} steps)`, 60, 25);
+        ctx.fillText(`Model: ${model.toUpperCase()} | n = ${steps} steps, m = ${paths} attackers`, 60, 25);
 
-        for (p = 0; p < paths; p++) {
+        for (let p = 0; p < paths; p++) {
             let currentVal = 0;
             let px = 50;
             let py = centerY;
 
             ctx.beginPath();
             ctx.moveTo(px, py);
-            ctx.strokeStyle = p === 0 ? '#38bdf8' : (p === 1 ? '#10b981' : '#a855f7');
-            ctx.lineWidth = 2;
+            // Use subtle opacity if many paths are rendered
+            ctx.strokeStyle = paths > 50 ? 'rgba(56, 189, 248, 0.2)' : (p === 0 ? '#38bdf8' : (p === 1 ? '#10b981' : '#a855f7'));
+            ctx.lineWidth = paths > 50 ? 1 : 1.5;
 
             for (let i = 1; i <= steps; i++) {
                 let increment = 0;
                 if (model === 'bernoulli') {
-                    increment = Math.random() < 0.5 ? 1 : 0;
-                    currentVal += (increment - 0.5); // centered for visual alignment
+                    // Centered Bernoulli for visual alignment (p=0.5, X_i - 0.5)
+                    increment = Math.random() < 0.5 ? 0.5 : -0.5;
                 } else {
                     increment = Math.random() < 0.5 ? 1 : -1;
-                    currentVal += increment;
                 }
 
+                currentVal += increment;
                 px = 50 + i * dx;
-                py = centerY - currentVal * 8;
+                // Scale vertical display based on steps
+                let scaleFactor = steps <= 100 ? 8 : (steps <= 500 ? 3.5 : 2);
+                py = centerY - currentVal * scaleFactor;
 
                 ctx.lineTo(px, py);
             }
@@ -315,9 +354,8 @@
         }
     }
 
-    // Run default simulation on load
     window.onload = () => {
-        runSimulation('rademacher');
+        runSimulation();
     };
 </script>
 
