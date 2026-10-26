@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 3 — Stochastic Penetration Models & Limit Theorems</title>
+    <!-- MathJax for advanced mathematical formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #38bdf8;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
+            --highlight-bg: rgba(56, 189, 248, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .formula-box {
+            background: rgba(3, 7, 18, 0.7);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 18px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0369a1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .success-badge {
+            background: #047857;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background: #030712;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+        }
+
+        canvas {
+            background: #030712;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .anim-btn {
+            background-color: var(--accent-color);
+            color: #030712;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .anim-btn:hover {
+            opacity: 0.9;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+
+    <header>
+        <h1>HMWK 3 — Stochastic Penetration Models & Limit Theorems</h1>
+        <p style="color: var(--text-secondary);">Modeling System Vulnerabilities using Bernoulli & Rademacher Processes</p>
+    </header>
+
+    <!-- Section 1: Modeling Framework -->
+    <div class="card">
+        <h2>1. Stochastic Modeling Framework ($n$ Systems & $m$ Attackers)</h2>
+        <p>To analyze the dynamics of cybersecurity penetration processes across multiple systems and attackers, we model the cumulative score using independent and identically distributed (i.i.d.) random increments \(X_1, X_2, \dots, X_n\).</p>
+        <ul>
+            <li><strong>Bernoulli Model:</strong> Increments represent success/failure at each step, where \(X_i \in \{0, 1\}\) with probability \(\Pr(X_i = 1) = p\) and \(\Pr(X_i = 0) = 1 - p\).</li>
+            <li><strong>Rademacher Model:</strong> Introduced to study the symmetric, zero-mean case, where \(X_i \in \{-1, +1\}\) with equal probability \(\Pr(X_i = +1) = \Pr(X_i = -1) = 1/2\).</li>
+        </ul>
+    </div>
+
+    <!-- Section 2: Interactive Simulation -->
+    <div class="card">
+        <h2>2. Interactive Trajectory Simulation</h2>
+        <p>Simulating multiple sample trajectories (\(m\) attackers) over \(n\) penetration steps. Observe how fluctuations scale under different normalizations:</p>
+        
+        <div class="canvas-container">
+            <canvas id="simCanvas" width="600" height="350"></canvas>
+            <div class="controls">
+                <button class="anim-btn" onclick="runSimulation('bernoulli')">Run Bernoulli Simulation</button>
+                <button class="anim-btn" onclick="runSimulation('rademacher')" style="background-color: #10b981; color: white;">Run Rademacher Simulation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Quantities of Interest -->
+    <div class="card">
+        <h2>3. Quantities of Interest & Statistical Analysis</h2>
+        <p>We analyze the distribution and asymptotic behavior of three key aggregate metrics as the number of steps \(n\) increases:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Quantity</th>
+                    <th>Mathematical Expression</th>
+                    <th>Asymptotic Behavior & Statistical Meaning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total Score</strong></td>
+                    <td>\(S_n = \sum_{i=1}^n X_i\)</td>
+                    <td>Grows linearly with \(n\); variance scales as \(\mathcal{O}(n)\). Reflects cumulative penetration depth.</td>
+                </tr>
+                <tr>
+                    <td><strong>Average Score</strong></td>
+                    <td>\(\frac{S_n}{n} = \frac{1}{n} \sum_{i=1}^n X_i\)</td>
+                    <td>Converges in probability to the expected value \(\mathbb{E}[X_1]\) according to the <strong>Law of Large Numbers (LLN)</strong>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Normalized Total Score</strong></td>
+                    <td>\(\frac{S_n}{\sqrt{n}} = \frac{1}{\sqrt{n}} \sum_{i=1}^n X_i\)</td>
+                    <td>Converges in distribution to a normal distribution \(\mathcal{N}(0, \sigma^2)\) according to the <strong>Central Limit Theorem (CLT)</strong>.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="formula-box">
+            <strong>Law of Large Numbers:</strong> \(\lim_{n \to \infty} \Pr\left(\left|\frac{S_n}{n} - \mu\right| > \varepsilon\right) = 0 \quad (\text{where } \mu = \mathbb{E}[X])\)
+        </div>
+        <div class="formula-box">
+            <strong>Central Limit Theorem (Rademacher Case):</strong> \(\frac{S_n}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1) \quad \text{as } n \to \infty\)
+        </div>
+    </div>
+
+    <!-- Section 4: Interpretation & System Dynamics -->
+    <div class="card">
+        <h2>4. Interpretation in the Context of Systems and Attackers</h2>
+        <ul>
+            <li><strong>System Size (\(n\)):</strong> Represents the depth or sequence of security barriers. As \(n\) increases, individual anomalies smooth out, and aggregate behavior becomes highly predictable due to LLN.</li>
+            <li><strong>Number of Attackers (\(m\)):</strong> Represents parallel sample paths. Running multiple trajectories illustrates the spread of outcomes around the expected mean.</li>
+            <li><strong>Variance & Normalization:</strong> Without division by \(\sqrt{n}\), the variance of \(S_n\) diverges as \(n\) grows. Normalizing by \(\sqrt{n}\) stabilizes the scale, allowing direct observation of bell-curve convergence via the CLT.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 1;
+        
+        // Draw coordinate axes
+        ctx.beginPath();
+        ctx.moveTo(50, 20);
+        ctx.lineTo(50, canvas.height - 30);
+        ctx.lineTo(canvas.width - 20, canvas.height - 30);
+        ctx.stroke();
+    }
+
+    function runSimulation(model) {
+        drawGrid();
+        const steps = 50;
+        const paths = 5; // m attackers
+        const dx = (canvas.width - 80) / steps;
+        const centerY = canvas.height / 2;
+
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillStyle = '#9ca3af';
+        ctx.fillText(`Model: ${model.toUpperCase()} (m = ${paths} attackers, n = ${steps} steps)`, 60, 25);
+
+        for (p = 0; p < paths; p++) {
+            let currentVal = 0;
+            let px = 50;
+            let py = centerY;
+
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.strokeStyle = p === 0 ? '#38bdf8' : (p === 1 ? '#10b981' : '#a855f7');
+            ctx.lineWidth = 2;
+
+            for (let i = 1; i <= steps; i++) {
+                let increment = 0;
+                if (model === 'bernoulli') {
+                    increment = Math.random() < 0.5 ? 1 : 0;
+                    currentVal += (increment - 0.5); // centered for visual alignment
+                } else {
+                    increment = Math.random() < 0.5 ? 1 : -1;
+                    currentVal += increment;
+                }
+
+                px = 50 + i * dx;
+                py = centerY - currentVal * 8;
+
+                ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+    }
+
+    // Run default simulation on load
+    window.onload = () => {
+        runSimulation('rademacher');
+    };
+</script>
+
+</body>
+</html>
