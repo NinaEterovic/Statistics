@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 4 — Welford's Formulas & Sampling Statistics</title>
+    <!-- MathJax for advanced mathematical formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #38bdf8;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
+            --highlight-bg: rgba(56, 189, 248, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .formula-box {
+            background: rgba(3, 7, 18, 0.7);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 18px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0369a1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        select, .anim-btn {
+            background-color: #1e293b;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .anim-btn {
+            background-color: var(--accent-color);
+            color: #030712;
+            border: none;
+            margin-top: auto;
+        }
+
+        .anim-btn:hover {
+            opacity: 0.9;
+        }
+
+        .results-box {
+            background: #030712;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+
+    <header>
+        <h1>HMWK 4 — Welford's Formulas & Sampling Statistics</h1>
+        <p style="color: var(--text-secondary);">Numerically Stable Statistics & Empirical Validation of Means and Variances</p>
+    </header>
+
+    <!-- Exercise 1: Welford's Recurrence Formulas -->
+    <div class="card">
+        <h2>Ex. 1 – Welford’s Recurrence Formulas</h2>
+        <p>Following Knuth's approach for the recursive mean, we derive Welford’s formulas to compute the mean \(\bar{x}_n\), sum of squares (\(M_{2,n}\)), and sample variance \(s^2_n\) in a single pass with high numerical stability, avoiding catastrophic cancellation.</p>
+        
+        <h3>Derivation Outline</h3>
+        <ul>
+            <li><strong>Mean update:</strong> \(\bar{x}_n = \bar{x}_{n-1} + \frac{x_n - \bar{x}_{n-1}}{n}\)</li>
+            <li><strong>Sum of Squares ($M_2$):</strong> \(M_{2,n} = M_{2,n-1} + (x_n - \bar{x}_{n-1})(x_n - \bar{x}_n)\)</li>
+            <li><strong>Sample Variance:</strong> \(s^2_n = \frac{M_{2,n}}{n-1}\) (or population variance \(\sigma^2_n = \frac{M_{2,n}}{n}\))</li>
+        </ul>
+
+        <h3>Core JavaScript Implementation (3-line logic)</h3>
+        <div class="formula-box">
+            let mean = 0, M2 = 0;<br>
+            data.forEach((x, i) =&gt; {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;let delta = x - mean;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;mean += delta / (i + 1);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;M2 += delta * (x - mean);<br>
+            });
+        </div>
+    </div>
+
+    <!-- Exercise 2: Sampling Mean and Variance -->
+    <div class="card">
+        <h2>Ex. 2 – Sampling Mean and Variance in Penetration Testing</h2>
+        <p>Each penetration attempt on a system yields a score between 0 and 10, drawn from a uniform distribution over \([0, 10]\). For this distribution:</p>
+        <ul>
+            <li><strong>Theoretical Mean (\(\mu\)):</strong> \(5.0\)</li>
+            <li><strong>Theoretical Variance (\(\sigma^2\)):</strong> \(\frac{(b-a)^2}{12} = \frac{10^2}{12} \approx 8.333\)</li>
+        </ul>
+
+        <p>We simulate \(m\) hackers attempting \(n\) systems. Using Welford's algorithm, we compute sampling means and variances for each hacker, then average them across all \(m\) hackers to compare with theoretical benchmarks.</p>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Systems per Hacker (\(n\)):</label>
+                <select id="nSelect">
+                    <option value="10">10</option>
+                    <option value="50" selected>50</option>
+                    <option value="200">200</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Number of Hackers (\(m\)):</label>
+                <select id="mSelect">
+                    <option value="100">100 hackers</option>
+                    <option value="1000" selected>1000 hackers</option>
+                    <option value="5000">5000 hackers</option>
+                </select>
+            </div>
+
+            <button class="anim-btn" onclick="runSimulation()">Run Simulation 🔄</button>
+        </div>
+
+        <div class="results-box" id="resultsOutput">
+            Click 'Run Simulation' to execute Welford's algorithm across hackers...
+        </div>
+    </div>
+
+    <!-- Section 3: Conclusions & Statistical Insights -->
+    <div class="card">
+        <h2>3. Conclusions & Statistical Interpretation</h2>
+        <ul>
+            <li><strong>Unbiased Estimation:</strong> The average of sampling means across all hackers closely approximates the theoretical mean \(\mu\), and the average of sampling variances matches \(\sigma^2\). This confirms that sample statistics are unbiased estimators of population parameters.</li>
+            <li><strong>Effect of Increasing \(n\):</strong> According to the Law of Large Numbers and properties of variance (\(\text{Var}(\bar{X}) = \sigma^2 / n\)), increasing the number of systems \(n\) drastically reduces the variability (spread) of sampling means around \(\mu\).</li>
+            <li><strong>Usefulness in Inferential Statistics:</strong> These recurrence formulas allow efficient, online updating of statistical parameters in real-time security telemetry and streaming data analysis without storing historical datasets.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function runSimulation() {
+        const n = parseInt(document.getElementById('nSelect').value);
+        const m = parseInt(document.getElementById('mSelect').value);
+
+        let sumOfMeans = 0;
+        let sumOfVariances = 0;
+
+        // Simulate m hackers, each with n scores drawn from Uniform(0, 10)
+        for (let hacker = 0; hacker < m; hacker++) {
+            let mean = 0;
+            let M2 = 0;
+
+            for (let i = 0; i < n; i++) {
+                let x = Math.random() * 10; // score between 0 and 10
+                let delta = x - mean;
+                mean += delta / (i + 1);
+                M2 += delta * (x - mean);
+            }
+
+            let sampleVariance = n > 1 ? M2 / (n - 1) : 0;
+            sumOfMeans += mean;
+            sumOfVariances += sampleVariance;
+        }
+
+        let avgOfMeans = sumOfMeans / m;
+        let avgOfVariances = sumOfVariances / m;
+
+        const theoreticalMean = 5.0;
+        const theoreticalVariance = 100 / 12; // ~8.3333
+
+        document.getElementById('resultsOutput').innerHTML = `
+            <strong>Simulation Results (m = ${m} hackers, n = ${n} systems):</strong><br><br>
+            • Theoretical Mean (&mu;): <strong>${theoreticalMean.toFixed(4)}</strong><br>
+            • Avg of Sampling Means:  <strong style="color: #38bdf8;">${avgOfMeans.toFixed(4)}</strong> (Diff: ${Math.abs(avgOfMeans - theoreticalMean).toFixed(4)})<br><br>
+            • Theoretical Var (&sigma;²): <strong>${theoreticalVariance.toFixed(4)}</strong><br>
+            • Avg of Sampling Vars:   <strong style="color: #10b981;">${avgOfVariances.toFixed(4)}</strong> (Diff: ${Math.abs(avgOfVariances - theoreticalVariance).toFixed(4)})
+        `;
+    }
+
+    window.onload = () => {
+        runSimulation();
+    };
+</script>
+
+</body>
+</html>
