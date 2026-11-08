@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMWK 5 — Riemann & Lebesgue Integration / Normal CDF</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--accent:#38bdf8;--text:#f3f4f6;--muted:#9ca3af;--border:#263244;--green:#34d399;--yellow:#fbbf24}
+*{box-sizing:border-box}
+body{margin:0;padding:30px 18px;background:var(--bg);color:var(--text);font:16px/1.65 Inter,system-ui,-apple-system,sans-serif}
+.container{max-width:1100px;margin:auto}
+header{text-align:center;border-bottom:1px solid var(--border);padding:12px 0 28px;margin-bottom:28px}
+h1,h2,h3{color:var(--accent);line-height:1.25}
+h1{font-size:clamp(1.7rem,4vw,2.5rem)}
+h2{font-size:1.45rem;border-bottom:1px solid var(--border);padding-bottom:12px}
+h3{font-size:1.12rem;margin-top:25px}
+p,li{color:#d1d5db}
+.muted,small{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:25px;margin:22px 0;box-shadow:0 12px 25px #0004}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.panel{background:#080d17;border:1px solid var(--border);border-radius:10px;padding:15px;margin:12px 0}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:end;margin:18px 0}
+label{display:flex;flex-direction:column;gap:5px;color:var(--muted);font-size:.9rem}
+select,input,button{background:#1e293b;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:7px;font:inherit}
+button{background:var(--accent);color:#06111c;font-weight:700;cursor:pointer;border:0}
+button:hover{opacity:.88}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--accent);background:#38bdf812}
+.table-wrap{overflow-x:auto}
+.formula{font-family:ui-monospace,monospace;background:#080d17;padding:13px;border-left:3px solid var(--accent);border-radius:7px;overflow-x:auto}
+.badge{display:inline-block;border:1px solid var(--border);border-radius:20px;padding:2px 9px;font-size:.8rem;color:var(--green)}
+.note{border-left:3px solid var(--yellow);padding:10px 14px;background:#fbbf2410;color:#e5e7eb}
+canvas{width:100%;height:280px;background:#080d17;border:1px solid var(--border);border-radius:10px;margin-top:10px}
+.metric{font-size:1.2rem;font-weight:700;color:var(--green)}
+footer{text-align:center;color:var(--muted);padding:20px}
+a{color:var(--accent)}
+@media(max-width:650px){.card{padding:17px}body{padding:15px 10px}th,td{padding:8px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>HMWK 5 — Riemann & Lebesgue Integration</h1>
+<p class="muted">Numerical integration, convergence, special functions and computation of the standard normal CDF</p>
+</header>
+
+<section class="card">
+<h2>Ex. 1 – Riemann and Lebesgue Integration</h2>
+<p>Riemann integration partitions the <strong>domain</strong> into subintervals and adds rectangle areas. A Lebesgue integral groups points according to their <strong>function values</strong>: it partitions the range and measures the preimages of those range bins.</p>
+
+<div class="grid">
+<div class="panel"><strong>Riemann midpoint sum</strong><p class="formula">Σ f(xᵢ*) Δx</p><small>The midpoint of each domain interval is sampled.</small></div>
+<div class="panel"><strong>Lebesgue-inspired range sum</strong><p class="formula">Σ yⱼ · measure({x : f(x) ∈ binⱼ})</p><small>The domain is sampled, points are grouped by the range bin containing f(x), and each bin contributes representative value × estimated measure.</small></div>
+</div>
+
+<p class="note"><strong>Numerical qualification:</strong> the range-bin method below is a finite-grid approximation inspired by the Lebesgue definition. It is not a general exact Lebesgue-integral algorithm. Both methods depend on sampling resolution and range-bin width.</p>
+
+<h3>Functions included</h3>
+<p>The experiments include the seven standard examples from the assignment. Exact values are used only as benchmarks; the numerical methods do not use them to calculate their estimates.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Function</th><th>Interval</th><th>Exact integral / benchmark</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>sin(x)</td><td>[0, π]</td><td>2</td><td>Continuous and bounded</td></tr>
+<tr><td>x²</td><td>[0, 1]</td><td>1/3</td><td>Continuous and bounded</td></tr>
+<tr><td>1 for x &lt; 0.5, 3 otherwise</td><td>[0, 1]</td><td>2</td><td>One jump discontinuity</td></tr>
+<tr><td>|x − 0.5|</td><td>[0, 1]</td><td>0.25</td><td>Continuous, with a corner</td></tr>
+<tr><td>1/√x</td><td>(0, 1]</td><td>2</td><td>Unbounded but integrable improper function</td></tr>
+<tr><td>1 for x &lt; 0.5, 0 otherwise</td><td>[0, 1]</td><td>0.5</td><td>One jump discontinuity</td></tr>
+<tr><td>sin(x)/x, with f(0)=1</td><td>[0, π]</td><td>Si(π) ≈ 1.85194</td><td>Continuous after defining f(0)=1</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Interactive numerical experiment</h3>
+<div class="controls">
+<label>Function
+<select id="functionSelect">
+<option value="sin">sin(x) on [0, π]</option>
+<option value="square">x² on [0, 1]</option>
+<option value="step13">Step: 1 then 3</option>
+<option value="abs">|x − 0.5|</option>
+<option value="singular">1 / √x</option>
+<option value="step10">Step: 1 then 0</option>
+<option value="sinc">sin(x) / x on [0, π]</option>
+<option value="dirichlet">Dirichlet function (illustrative grid only)</option>
+<option value="thomae">Thomae function (illustrative grid only)</option>
+</select></label>
+
+<label>Domain subdivisions / grid points
+<select id="resolution">
+<option>20</option><option selected>100</option><option>500</option><option>2000</option><option>10000</option>
+</select></label>
+
+<label>Range bins (Lebesgue-inspired)
+<select id="rangeBins">
+<option>20</option><option selected>50</option><option>100</option><option>200</option><option>500</option>
+</select></label>
+
+<button onclick="runIntegration()">Run integration</button>
+</div>
+
+<div id="integrationResults" class="panel" aria-live="polite">Choose a function and run the experiment.</div>
+
+<div class="table-wrap">
+<table id="convergenceTable">
+<thead><tr><th>Grid N</th><th>Riemann midpoint</th><th>Absolute error</th><th>Range-bin estimate</th><th>Absolute error</th><th>Range bins K</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<canvas id="convergenceChart" width="1000" height="300" aria-label="Convergence plot"></canvas>
+
+<h3>How the methods work</h3>
+<div class="formula">Riemann midpoint: I ≈ Δx Σᵢ f(a + (i + 1/2)Δx)</div>
+<div class="formula">Range-bin estimate: I ≈ Σⱼ cⱼ · (number of sampled x with f(x) in bin j) · Δx</div>
+
+<p>For a finite range partition, cⱼ is the midpoint of range bin j. In the convergence table, K is increased together with N so that range-quantization error does not remain fixed while the domain grid is refined. For the unbounded function 1/√x, the range is truncated at the largest sampled value and the first domain sample is kept away from zero; the approximation therefore has an additional truncation/grid effect.</p>
+
+<h3>Pathological examples and what numerical grids can/cannot show</h3>
+<ul>
+<li><strong>Dirichlet function:</strong> D(x)=1 for rational x and 0 for irrational x. It is not Riemann-integrable, but it is Lebesgue-integrable with integral 0 because the rationals have measure zero. A finite floating-point grid consists of representable numbers and cannot meaningfully distinguish rational from irrational real inputs. The code therefore labels this experiment illustrative only; it must not be interpreted as a reliable numerical Lebesgue computation.</li>
+<li><strong>Thomae function:</strong> T(p/q)=1/q for p/q in lowest terms and 0 for irrational x. It is Riemann-integrable and its integral on [0,1] is 0. A floating-point implementation can only detect a limited set of rational representations, so the grid experiment is illustrative, not a proof or a fully reliable evaluation.</li>
+</ul>
+
+<p>For bounded functions continuous except on a set of measure zero, such as the step functions here, the Riemann and Lebesgue integrals agree. For the examples that are Riemann-integrable, both numerical approaches should approach the same integral as the grid and range partition are refined, although their finite-resolution errors can differ.</p>
+</section>
+
+<section class="card">
+<h2>Ex. 2 – Numerical Computation of the Normal CDF</h2>
+<p>The standard normal CDF is</p>
+<div class="formula">Φ(x) = (1 / √(2π)) ∫₋∞ˣ exp(−t²/2) dt.</div>
+
+<p>The antiderivative of exp(−t²/2) cannot be written using elementary functions. In differential algebra, Liouville's theorem gives criteria for an elementary antiderivative. For exp(−u²), an elementary antiderivative would require a rational function R satisfying R′(u) − 2uR(u) = 1; no rational function satisfies this identity. Thus a new special function is used.</p>
+
+<p>The error function is defined by</p>
+<div class="formula">erf(z) = (2 / √π) ∫₀ᶻ exp(−t²) dt</div>
+<p>and gives the exact analytical representation</p>
+<div class="formula">Φ(x) = ½ [1 + erf(x / √2)].</div>
+
+<p>“Exact analytical representation” means an exact identity in terms of a special function. A computer still needs a numerical algorithm to evaluate erf or the integral to finite precision.</p>
+
+<h3>Three numerical approaches</h3>
+<div class="grid">
+<div class="panel"><strong>1. Simpson's rule</strong><p>Numerically integrates the normal density from 0 to |x| and uses symmetry: Φ(x)=0.5±∫₀^{|x|}φ(t)dt. This avoids an arbitrary finite lower cutoff and works for positive and negative x.</p></div>
+<div class="panel"><strong>2. erf power series</strong><p>Uses erf(z)=2/√π Σₖ₌₀∞ [(-1)ᵏ z²ᵏ⁺¹/(k!(2k+1))]. This converges for all finite z but can suffer cancellation and become inefficient for large |z|.</p></div>
+<div class="panel"><strong>3. erfc-style approximation</strong><p>Uses a compact Numerical-Recipes-style approximation to erf/erfc. It has a fixed computational cost and is fast, but is approximate rather than exact.</p></div>
+</div>
+
+<h3>Interactive CDF comparison</h3>
+<div class="controls">
+<label>Evaluate at x
+<input id="xInput" type="number" value="1.96" step="0.1"></label>
+<label>Simpson intervals
+<select id="simpsonN">
+<option>100</option><option selected>500</option><option>2000</option><option>10000</option>
+</select></label>
+<button onclick="computeCDF()">Compare methods</button>
+</div>
+
+<div id="cdfResults" class="panel" aria-live="polite">Enter x and calculate.</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>x</th><th>Reference Φ(x)</th><th>Source / note</th></tr></thead>
+<tbody id="referenceTable"></tbody>
+</table>
+</div>
+
+<p class="note">Reference values below are taken from the <a href="https://itl.nist.gov/div898/handbook/eda/section3/eda3671.htm" target="_blank" rel="noopener">NIST/SEMATECH e-Handbook standard normal table</a>. The NIST table is rounded to 5 decimal places, so its comparison cannot validate more than about 5 decimal places. The table is an external reference, not a live lookup performed by this page.</p>
+
+<h3>Accuracy and efficiency discussion</h3>
+<ul>
+<li>Simpson's rule is a general integration method. For a smooth density and enough even subintervals, it is accurate, but its cost grows with the number of intervals.</li>
+<li>The power series is mathematically transparent and converges for every finite input. For large absolute inputs, terms can become very large before cancellation, so it is not the best general-purpose method.</li>
+<li>The compact erf approximation uses a fixed number of arithmetic operations and is usually the fastest of these three methods. Its error is small but nonzero; the implementation should be checked against reference values.</li>
+<li>For very negative x, computing 1−Φ(−x) can lose precision if Φ is close to 1. A production-quality library uses dedicated tail algorithms and complementary error functions.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>Conclusions</h2>
+<ul>
+<li>Riemann sums partition the domain, while the Lebesgue-inspired finite-range method groups sampled domain points according to their function values.</li>
+<li>For the bounded Riemann-integrable examples, the two integral definitions agree, and both numerical approximations should converge toward the same value as the partitions are refined.</li>
+<li>Pathological examples show why measure theory is more general. However, finite floating-point sampling cannot establish the rational/irrational distinction required by the Dirichlet function.</li>
+<li>The normal CDF has no elementary antiderivative, but the error function gives an exact special-function representation. Numerical algorithms are still needed because software must return finite-precision numbers.</li>
+<li>No single numerical method is best for every input: the choice depends on accuracy requirements, input range, computational cost, and numerical stability.</li>
+</ul>
+</section>
+
+<footer>HMWK 5 — Numerical Analysis & Probability</footer>
+</div>
+
+<script>
+const functionsInfo = {
+ sin:{a:0,b:Math.PI,exact:2,label:"sin(x)"},
+ square:{a:0,b:1,exact:1/3,label:"x²"},
+ step13:{a:0,b:1,exact:2,label:"step 1/3"},
+ abs:{a:0,b:1,exact:.25,label:"|x−0.5|"},
+ singular:{a:0,b:1,exact:2,label:"1/√x"},
+ step10:{a:0,b:1,exact:.5,label:"step 1/0"},
+ sinc:{a:0,b:Math.PI,exact:1.851937051982466,label:"sin(x)/x"},
+ dirichlet:{a:0,b:1,exact:0,label:"Dirichlet (grid illustration only)"},
+ thomae:{a:0,b:1,exact:0,label:"Thomae (grid illustration only)"}
+};
+
+function gcd(a,b){while(b){[a,b]=[b,a%b]}return a}
+
+function thomaeAt(x){
+ if(x===0)return 1;
+ const maxQ=1000;
+ for(let q=1;q<=maxQ;q++){
+  const p=Math.round(x*q);
+  if(Math.abs(x-p/q)<1e-12 && gcd(Math.abs(p),q)===1)return 1/q;
+ }
+ return 0;
+}
+
+function fValue(key,x){
+ switch(key){
+  case"sin":return Math.sin(x);
+  case"square":return x*x;
+  case"step13":return x<.5?1:3;
+  case"abs":return Math.abs(x-.5);
+  case"singular":return 1/Math.sqrt(x);
+  case"step10":return x<.5?1:0;
+  case"sinc":return x===0?1:Math.sin(x)/x;
+  case"dirichlet":return 1;
+  case"thomae":return thomaeAt(x);
+ }
+}
+
+function integrate(key,N,K){
+ const info=functionsInfo[key],a=info.a,b=info.b,dx=(b-a)/N;
+ let riemann=0,samples=[];
+
+ for(let i=0;i<N;i++){
+  let x=a+(i+.5)*dx;
+  if(key==="singular")x=Math.max(x,dx/2);
+  let y=fValue(key,x);
+  riemann+=y*dx;
+  samples.push({x,y});
+ }
+
+ let ymin=Math.min(...samples.map(s=>s.y));
+ let ymax=Math.max(...samples.map(s=>s.y));
+
+ if(ymax===ymin)return {riemann,lebesgue:riemann};
+
+ const dy=(ymax-ymin)/K;
+ const counts=new Array(K).fill(0);
+
+ for(const s of samples){
+  let j=Math.floor((s.y-ymin)/dy);
+  if(j>=K)j=K-1;
+  if(j<0)j=0;
+  counts[j]++;
+ }
+
+ let lebesgue=0;
+ for(let j=0;j<K;j++){
+  const representative=ymin+(j+.5)*dy;
+  lebesgue+=representative*(counts[j]*dx);
+ }
+
+ return {riemann,lebesgue};
+}
+
+function timeRun(fn){
+ const t0=performance.now();
+ const value=fn();
+ return {value,ms:performance.now()-t0};
+}
+
+function runIntegration(){
+ const key=document.getElementById("functionSelect").value;
+ const N=Number(document.getElementById("resolution").value);
+ const K=Number(document.getElementById("rangeBins").value);
+ const info=functionsInfo[key];
+
+ const r=timeRun(()=>integrate(key,N,K));
+ const isPath=key==="dirichlet"||key==="thomae";
+ const errR=Math.abs(r.value.riemann-info.exact);
+ const errL=Math.abs(r.value.lebesgue-info.exact);
+
+ document.getElementById("integrationResults").innerHTML=
+ `<strong>${info.label}</strong><br>
+ Benchmark integral: <span class="metric">${info.exact.toFixed(8)}</span><br>
+ Riemann midpoint: <strong>${r.value.riemann.toFixed(10)}</strong> (absolute error ${errR.toExponential(3)})<br>
+ Lebesgue-inspired range-bin estimate: <strong>${r.value.lebesgue.toFixed(10)}</strong> (absolute error ${errL.toExponential(3)})<br>
+ Grid points: ${N}; range bins: ${K}<br>
+ Combined calculation time: ${r.ms.toFixed(3)} ms
+ ${isPath?'<p class="note">Illustrative finite-grid output only. It does not numerically establish the Lebesgue integral or the rational/irrational structure of this function.</p>':''}`;
+
+ const ns=[20,50,100,500,1000,2000,5000];
+ const tbody=document.querySelector("#convergenceTable tbody");
+ tbody.innerHTML="";
+ const chart=[];
+
+ for(const n of ns){
+  const Kn=Math.max(K,Math.min(500,Math.ceil(2*Math.sqrt(n))));
+  const out=integrate(key,n,Kn);
+  const e1=Math.abs(out.riemann-info.exact);
+  const e2=Math.abs(out.lebesgue-info.exact);
+
+  chart.push({n,e1,e2});
+
+  const tr=document.createElement("tr");
+  [n,out.riemann.toFixed(8),e1.toExponential(2),out.lebesgue.toFixed(8),e2.toExponential(2),Kn].forEach(v=>{
+   const td=document.createElement("td");
+   td.textContent=v;
+   tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+ }
+
+ drawConvergence(chart);
+}
+
+function drawConvergence(data){
+ const c=document.getElementById("convergenceChart");
+ const ctx=c.getContext("2d");
+ const w=c.width,h=c.height;
+
+ ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle="#64748b";
+ ctx.lineWidth=1;
+ ctx.beginPath();
+ ctx.moveTo(55,15);
+ ctx.lineTo(55,h-40);
+ ctx.lineTo(w-20,h-40);
+ ctx.stroke();
+
+ const vals=data.flatMap(d=>[d.e1,d.e2]).map(v=>Math.max(v,1e-16));
+ const max=Math.max(...vals);
+ const min=Math.min(...vals);
+ const logMin=Math.log10(min);
+ const logMax=Math.log10(max);
+
+ const x=i=>55+i*(w-90)/(data.length-1);
+ const y=v=>h-40-(Math.log10(Math.max(v,1e-16))-logMin)/(logMax-logMin||1)*(h-75);
+
+ function line(key,color){
+  ctx.strokeStyle=color;
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  data.forEach((d,i)=>{
+   const px=x(i),py=y(d[key]);
+   if(i===0)ctx.moveTo(px,py);
+   else ctx.lineTo(px,py);
+  });
+  ctx.stroke();
+ }
+
+ line("e1","#38bdf8");
+ line("e2","#34d399");
+
+ ctx.fillStyle="#cbd5e1";
+ ctx.font="13px sans-serif";
+ ctx.fillText("Absolute error (log scale)",60,18);
+ ctx.fillText("Grid size N",w/2,h-10);
+
+ data.forEach((d,i)=>ctx.fillText(String(d.n),x(i)-12,h-20));
+
+ ctx.fillStyle="#38bdf8";
+ ctx.fillRect(w-260,18,12,4);
+ ctx.fillStyle="#e5e7eb";
+ ctx.fillText("Riemann",w-242,24);
+
+ ctx.fillStyle="#34d399";
+ ctx.fillRect(w-165,18,12,4);
+ ctx.fillStyle="#e5e7eb";
+ ctx.fillText("Range-bin",w-147,24);
+}
+
+function erfApprox(z){
+ if(z===0)return 0;
+ const t=1/(1+0.5*Math.abs(z));
+ const tau=t*Math.exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));
+ return z>=0?1-tau:tau-1;
+}
+
+function cdfErf(x){
+ return .5*(1+erfApprox(x/Math.SQRT2));
+}
+
+function cdfSeries(x){
+ const z=x/Math.SQRT2;
+ let term=z,sum=z;
+
+ for(let k=1;k<500;k++){
+  term*=(-z*z)/k;
+  const add=term/(2*k+1);
+  sum+=add;
+  if(Math.abs(add)<1e-16*Math.max(1,Math.abs(sum)))break;
+ }
+
+ return .5*(1+(2/Math.sqrt(Math.PI))*sum);
+}
+
+function cdfSimpson(x,N){
+ if(x===0)return .5;
+
+ const sign=x>0?1:-1;
+ const a=0,b=Math.abs(x);
+ const n=N%2===0?N:N+1;
+ const h=(b-a)/n;
+
+ let s=Math.exp(-a*a/2)+Math.exp(-b*b/2);
+
+ for(let i=1;i<n;i++){
+  s+=(i%2===0?2:4)*Math.exp(-Math.pow(a+i*h,2)/2);
+ }
+
+ const integral=s*h/3/Math.sqrt(2*Math.PI);
+ return sign>0?.5+integral:.5-integral;
+}
+
+const refs=[
+ [-3,.00135],
+ [-2,.02275],
+ [-1,.15866],
+ [-1.96,.02500],
+ [0,.50000],
+ [1,.84134],
+ [1.96,.97500],
+ [2,.97725],
+ [3,.99865]
+];
+
+function findReference(x){
+ const match=refs.find(([z])=>Math.abs(z-x)<1e-10);
+ return match?match[1]:null;
+}
+
+function computeCDF(){
+ const x=Number(document.getElementById("xInput").value);
+ const N=Number(document.getElementById("simpsonN").value);
+
+ if(!Number.isFinite(x)){
+  document.getElementById("cdfResults").textContent="Please enter a valid finite number.";
+  return;
+ }
+
+ if(Math.abs(x)>8){
+  document.getElementById("cdfResults").textContent="For this interactive comparison, please use x between −8 and 8. More extreme tail probabilities require specialized numerical methods.";
+  return;
+ }
+
+ const reference=findReference(x);
+
+ const methods=[
+  ["Simpson's rule",()=>cdfSimpson(x,N)],
+  ["erf power series",()=>cdfSeries(x)],
+  ["Fast erf approximation",()=>cdfErf(x)]
+ ];
+
+ let rows="";
+
+ for(const [name,fn] of methods){
+  const t0=performance.now();
+  const v=fn();
+  const ms=performance.now()-t0;
+  const err=reference===null?"—":Math.abs(v-reference).toExponential(3);
+
+  rows+=`<tr><td>${name}</td><td>${v.toPrecision(12)}</td><td>${err}</td><td>${ms.toFixed(4)} ms</td></tr>`;
+ }
+
+ const refText=reference===null
+  ?"This x is not one of the tabulated NIST checkpoints below. Compare the computed result with the nearest listed values or consult the linked NIST table."
+  :`NIST table value at this x: <strong>${reference.toFixed(5)}</strong> (rounded to 5 decimals).`;
+
+ document.getElementById("cdfResults").innerHTML=
+  `<strong>Standard normal CDF at x = ${x}</strong>
+  <div>${refText}</div>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>Method</th><th>Computed Φ(x)</th><th>Absolute error vs. table</th><th>Execution time*</th></tr></thead>
+  <tbody>${rows}</tbody>
+  </table>
+  </div>
+  <small>*Browser timings are approximate and vary with device and system load. Simpson's cost grows with N; the series uses a variable number of terms; the fast approximation uses a fixed number of operations.</small>`;
+}
+
+function renderReference(){
+ const body=document.getElementById("referenceTable");
+
+ refs.forEach(([x,v])=>{
+  const tr=document.createElement("tr");
+
+  [x.toFixed(2),v.toFixed(5),"NIST/SEMATECH standard normal table"].forEach(t=>{
+   const td=document.createElement("td");
+   td.textContent=t;
+   tr.appendChild(td);
+  });
+
+  body.appendChild(tr);
+ });
+}
+
+renderReference();
+runIntegration();
+computeCDF();
+</script>
+</body>
+</html>
