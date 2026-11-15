@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 6 — Statistical Independence & Chi-Square Analysis</title>
+    <!-- MathJax for mathematical formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-color: #38bdf8;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #1f2937;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --highlight-bg: rgba(56, 189, 248, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        h2, h3 {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        h2 { font-size: 1.4rem; margin-top: 0; }
+        h3 { border-bottom: none; font-size: 1.15rem; margin-top: 25px; color: #7dd3fc; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.92rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .row-header {
+            background-color: rgba(30, 41, 59, 0.7);
+            font-weight: 600;
+            text-align: left;
+            color: var(--text-color);
+        }
+
+        .marginal-cell {
+            background-color: rgba(56, 189, 248, 0.05);
+            font-weight: 700;
+            color: #e0f2fe;
+        }
+
+        .formula-box {
+            background: rgba(3, 7, 18, 0.75);
+            border-left: 4px solid var(--accent-color);
+            padding: 16px 20px;
+            margin: 18px 0;
+            border-radius: 0 8px 8px 0;
+            overflow-x: auto;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .badge-indep { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+        .badge-dep { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+
+        .interactive-box {
+            background: #030712;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        select, textarea, .anim-btn {
+            background-color: #1e293b;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            outline: none;
+        }
+
+        textarea {
+            font-family: monospace;
+            resize: vertical;
+            min-height: 110px;
+            width: 100%;
+        }
+
+        .anim-btn {
+            background-color: var(--accent-color);
+            color: #030712;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            padding: 11px 22px;
+        }
+
+        .anim-btn:hover { opacity: 0.9; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 6px 0;
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; color: var(--text-secondary); }
+        li strong { color: var(--text-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Portfolio Menu</a>
+
+    <header>
+        <h1>HMWK 6 — Statistical Independence & Contingency Analysis</h1>
+        <p style="color: var(--text-secondary);">Bivariate Frequency Distributions, Expected Frequencies, \(\chi^2\) Hypothesis Testing & Causality</p>
+    </header>
+
+    <!-- Section 1: Theoretical Foundations -->
+    <div class="card">
+        <h2>1. Theoretical Framework of Statistical Independence</h2>
+        <p>In probability theory and statistics, two random variables \(X\) and \(Y\) are <strong>statistically independent</strong> if knowing the outcome of one provides zero information about the probability distribution of the other.</p>
+
+        <h3>1.1 Probability & Empirical Frequency Definitions</h3>
+        <ul>
+            <li><strong>Joint Probability Factorization:</strong> For discrete random variables \(X\) and \(Y\), independence holds if and only if for every pair of values \((x_i, y_j)\):
+                $$P(X = x_i \cap Y = y_j) = P(X = x_i) \cdot P(Y = y_j)$$
+            </li>
+            <li><strong>Conditional Probability Invariance:</strong> Equivalently, conditional distributions must equal the marginal distributions (provided \(P(X = x_i) > 0\)):
+                $$P(Y = y_j \mid X = x_i) = \frac{P(X = x_i \cap Y = y_j)}{P(X = x_i)} = P(Y = y_j)$$
+            </li>
+            <li><strong>Empirical Contingency Table Formulation:</strong> Given a bivariate dataset of \(N\) observations categorized into \(r\) rows (levels of \(X\)) and \(c\) columns (levels of \(Y\)), let \(O_{ij}\) denote the observed frequency in cell \((i, j)\). The row marginal total is \(R_i = \sum_{j=1}^c O_{ij}\) and the column marginal total is \(C_j = \sum_{i=1}^r O_{ij}\).</li>
+        </ul>
+
+        <h3>1.2 Expected Frequencies & Pearson's Chi-Square (\(\chi^2\)) Test</h3>
+        <p>Under the <strong>Null Hypothesis of Independence (\(H_0\))</strong>, the theoretical expected frequency \(E_{ij}\) for cell \((i, j)\) is derived from the product of marginal relative frequencies multiplied by total sample size \(N\):</p>
+        <div class="formula-box">
+            $$E_{ij} = N \cdot \left(\frac{R_i}{N}\right) \cdot \left(\frac{C_j}{N}\right) = \frac{R_i \cdot C_j}{N}$$
+        </div>
+
+        <p>To quantify deviations between observed data \(O_{ij}\) and theoretical independence \(E_{ij}\), we compute <strong>Pearson’s \(\chi^2\) test statistic</strong>, which asymptotically follows a \(\chi^2\) distribution with \(df = (r - 1)(c - 1)\) degrees of freedom:</p>
+        <div class="formula-box">
+            $$\chi^2 = \sum_{i=1}^{r} \sum_{j=1}^{c} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}, \qquad df = (r - 1)(c - 1)$$
+        </div>
+        <p>To measure the normalized strength of association independent of sample size \(N\), we also compute <strong>Cramér's \(V\)</strong>: \(V = \sqrt{\frac{\chi^2}{N \cdot \min(r-1, c-1)}}\), bounded in \([0, 1]\).</p>
+    </div>
+
+    <!-- Section 2: Programmatic Contingency & Chi-Square Engine -->
+    <div class="card">
+        <h2>2. Programmatic Bivariate Analyzer \((X, Y)\)</h2>
+        <p>Select a preset dataset or input any custom bivariate pairs <code>(X, Y)</code> below. The algorithm programmatically constructs the contingency table, extracts marginal and conditional frequencies, computes expected values under \(H_0\), and evaluates the \(\chi^2\) statistic and exact \(p\)-value.</p>
+
+        <div class="interactive-box">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="datasetPreset">Choose Bivariate Dataset Preset:</label>
+                    <select id="datasetPreset" onchange="loadPreset()">
+                        <option value="dependent_cyber">Preset 1: Attack Vector (X) vs. Breach Outcome (Y) [Dependent]</option>
+                        <option value="independent_rng">Preset 2: Server Region (X) vs. Packet Drop Status (Y) [Independent]</option>
+                        <option value="crypto_algo">Preset 3: Key Length (X) vs. Brute-Force Resistance (Y) [Strongly Dependent]</option>
+                    </select>
+                </div>
+                <div class="control-group" style="max-width: 180px;">
+                    <label for="alphaSelect">Significance Level (\(\alpha\)):</label>
+                    <select id="alphaSelect" onchange="analyzeBivariateData()">
+                        <option value="0.10">0.10 (10%)</option>
+                        <option value="0.05" selected>0.05 (5%)</option>
+                        <option value="0.01">0.01 (1%)</option>
+                    </select>
+                </div>
+                <button class="anim-btn" onclick="analyzeBivariateData()">Analyze Dataset ⚙️</button>
+            </div>
+
+            <div class="control-group" style="width: 100%;">
+                <label for="rawPairsInput">Raw Bivariate Observations <code>X, Y</code> (one observation pair per line):</label>
+                <textarea id="rawPairsInput"></textarea>
+            </div>
+
+            <!-- Statistical Summary Cards -->
+            <div class="stats-grid" id="summaryCards"></div>
+
+            <!-- Interpretation Banner -->
+            <div class="formula-box" id="decisionBanner" style="margin-top: 20px;"></div>
+
+            <!-- Table 1: Observed & Marginal Frequencies -->
+            <h3>2.1 Observed Contingency Table (\(O_{ij}\)) & Marginal Distributions</h3>
+            <div class="table-wrapper" id="observedTableContainer"></div>
+
+            <!-- Table 2: Conditional Frequencies -->
+            <h3>2.2 Conditional Frequencies: Row-wise \(P(Y \mid X)\) & Column-wise \(P(X \mid Y)\)</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">If \(X\) and \(Y\) are independent, row conditional percentages \(P(Y=y_j \mid X=x_i)\) remain nearly identical across all rows and match the bottom marginal column distribution \(P(Y=y_j)\).</p>
+            <div class="table-wrapper" id="conditionalTableContainer"></div>
+
+            <!-- Table 3: Expected Frequencies & Cell Chi-Square Contributions -->
+            <h3>2.3 Expected Frequencies (\(E_{ij}\)) & Cell \(\chi^2\) Contributions \(\frac{(O_{ij}-E_{ij})^2}{E_{ij}}\)</h3>
+            <div class="table-wrapper" id="expectedTableContainer"></div>
+        </div>
+    </div>
+
+    <!-- Section 3: Association vs. Causality -->
+    <div class="card">
+        <h2>3. Interpretation: Statistical Association vs. Causality</h2>
+        <p>Rejecting the null hypothesis \(H_0\) in a \(\chi^2\) test establishes <strong>statistical dependence (association)</strong>, meaning the joint distribution of \((X, Y)\) systematically deviates from the product of their marginals. However, statistical dependence <strong>does not imply a causal mechanism</strong> (\(X \not\Rightarrow Y\)).</p>
+
+        <h3>Why Association \(\neq\) Causation</h3>
+        <ul>
+            <li><strong>Confounding Variables (Common Cause \(Z\)):</strong> A latent third variable \(Z\) may independently influence both \(X\) and \(Y\) (i.e., \(X \leftarrow Z \rightarrow Y\)). For example, high firewall alert volume (\(X\)) and increased server latency (\(Y\)) are strongly dependent, yet alerts do not cause latency—both are caused by an underlying DDoS traffic spike (\(Z\)).</li>
+            <li><strong>Reverse Causality:</strong> A significant \(\chi^2\) statistic is symmetric with respect to \(X\) and \(Y\) (\(\chi^2(X,Y) = \chi^2(Y,X)\)). Mathematical dependence alone cannot distinguish whether \(X\) drives \(Y\) or \(Y\) drives \(X\).</li>
+            <li><strong>Selection Bias & Collider Stratification:</strong> Sampling only compromised systems or conditioning on a common effect can induce artificial statistical dependence between two genuinely independent variables (Berkson's paradox).</li>
+            <li><strong>Establishing Causality:</strong> Inferring causal direction requires experimental intervention (such as Randomized Controlled Trials / A/B testing), structural causal models (Pearl's <em>do</em>-calculus), or longitudinal temporal precedence rather than observational contingency tables alone.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // --- PRESET DATASETS ---
+    const presets = {
+        dependent_cyber: [
+            "Phishing, Compromised", "Phishing, Compromised", "Phishing, Compromised", "Phishing, Compromised", "Phishing, Compromised",
+            "Phishing, Compromised", "Phishing, Compromised", "Phishing, Blocked", "Phishing, Blocked", "Phishing, Blocked",
+            "SQL_Injection, Compromised", "SQL_Injection, Compromised", "SQL_Injection, Compromised", "SQL_Injection, Blocked", "SQL_Injection, Blocked",
+            "SQL_Injection, Blocked", "SQL_Injection, Blocked", "SQL_Injection, Blocked", "SQL_Injection, Blocked", "SQL_Injection, Blocked",
+            "Brute_Force, Compromised", "Brute_Force, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked",
+            "Brute_Force, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked",
+            "Phishing, Compromised", "Phishing, Compromised", "Phishing, Blocked", "SQL_Injection, Compromised", "Brute_Force, Blocked",
+            "Phishing, Compromised", "Phishing, Compromised", "SQL_Injection, Blocked", "Brute_Force, Blocked", "Brute_Force, Blocked"
+        ].join("\n"),
+
+        independent_rng: [
+            "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Dropped",
+            "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Delivered", "EU_Central, Dropped",
+            "US_East, Delivered", "US_East, Delivered", "US_East, Delivered", "US_East, Delivered", "US_East, Dropped",
+            "US_East, Delivered", "US_East, Delivered", "US_East, Delivered", "US_East, Delivered", "US_East, Dropped",
+            "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Dropped",
+            "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Delivered", "Asia_Pac, Dropped"
+        ].join("\n"),
+
+        crypto_algo: [
+            "128_bit, Secure", "128_bit, Secure", "128_bit, Vulnerable", "128_bit, Vulnerable", "128_bit, Vulnerable",
+            "128_bit, Vulnerable", "128_bit, Vulnerable", "128_bit, Vulnerable", "128_bit, Vulnerable", "128_bit, Vulnerable",
+            "256_bit, Secure", "256_bit, Secure", "256_bit, Secure", "256_bit, Secure", "256_bit, Secure",
+            "256_bit, Secure", "256_bit, Secure", "256_bit, Secure", "256_bit, Vulnerable", "256_bit, Vulnerable",
+            "512_bit, Secure", "512_bit, Secure", "512_bit, Secure", "512_bit, Secure", "512_bit, Secure",
+            "512_bit, Secure", "512_bit, Secure", "512_bit, Secure", "512_bit, Secure", "512_bit, Secure"
+        ].join("\n")
+    };
+
+    function loadPreset() {
+        const key = document.getElementById("datasetPreset").value;
+        document.getElementById("rawPairsInput").value = presets[key];
+        analyzeBivariateData();
+    }
+
+    // --- MATHEMATICAL FUNCTIONS FOR CHI-SQUARE P-VALUE ---
+    // Lanczos approximation for log-gamma
+    function logGamma(z) {
+        const coef = [
+            76.18009172947146, -86.50532032941677, 24.01409824083091,
+            -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5
+        ];
+        let x = z;
+        let y = z;
+        let tmp = x + 5.5;
+        tmp -= (x + 0.5) * Math.log(tmp);
+        let ser = 1.000000000190015;
+        for (let j = 0; j < 6; j++) {
+            y += 1;
+            ser += coef[j] / y;
+        }
+        return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    // Regularized upper incomplete gamma function Q(a, x) = 1 - P(a, x)
+    function upperIncompleteGammaQ(a, x) {
+        if (x < 0 || a <= 0) return NaN;
+        if (x === 0) return 1.0;
+
+        // Series representation for x < a + 1
+        if (x < a + 1.0) {
+            let ap = a;
+            let del = 1.0 / a;
+            let sum = del;
+            for (let n = 1; n <= 200; n++) {
+                ap += 1.0;
+                del *= x / ap;
+                sum += del;
+                if (Math.abs(del) < Math.abs(sum) * 1e-14) break;
+            }
+            const pVal = sum * Math.exp(-x + a * Math.log(x) - logGamma(a));
+            return Math.max(0, 1.0 - pVal);
+        } else {
+            // Continued fraction (Lentz's method) for x >= a + 1
+            let b = x + 1.0 - a;
+            let c = 1.0 / 1e-30;
+            let d = 1.0 / b;
+            let h = d;
+            for (let i = 1; i <= 200; i++) {
+                let an = -i * (i - a);
+                b += 2.0;
+                d = an * d + b;
+                if (Math.abs(d) < 1e-30) d = 1e-30;
+                c = b + an / c;
+                if (Math.abs(c) < 1e-30) c = 1e-30;
+                d = 1.0 / d;
+                let del = d * c;
+                h *= del;
+                if (Math.abs(del - 1.0) < 1e-14) break;
+            }
+            return Math.max(0, Math.exp(-x + a * Math.log(x) - logGamma(a)) * h);
+        }
+    }
+
+    function chiSquarePValue(chi2, df) {
+        if (df <= 0 || chi2 < 0) return 1.0;
+        return upperIncompleteGammaQ(df / 2.0, chi2 / 2.0);
+    }
+
+    // --- MAIN PROGRAMMATIC ENGINE ---
+    function analyzeBivariateData() {
+        const rawText = document.getElementById("rawPairsInput").value.trim();
+        const alpha = parseFloat(document.getElementById("alphaSelect").value);
+
+        if (!rawText) return;
+
+        // Parse (X, Y) pairs
+        const lines = rawText.split(/\r?\n/);
+        const pairs = [];
+        const xSet = new Set();
+        const ySet = new Set();
+
+        for (const line of lines) {
+            const parts = line.split(/[,;\t]+/).map(s => s.trim()).filter(Boolean);
+            if (parts.length >= 2) {
+                pairs.push([parts[0], parts[1]]);
+                xSet.add(parts[0]);
+                ySet.add(parts[1]);
+            }
+        }
+
+        const xLabels = Array.from(xSet);
+        const yLabels = Array.from(ySet);
+        const r = xLabels.length;
+        const c = yLabels.length;
+        const N = pairs.length;
+
+        if (r < 2 || c < 2 || N === 0) {
+            document.getElementById("decisionBanner").innerHTML =
+                `<strong style="color: var(--warning-color);">Insufficient categories:</strong> Please provide at least 2 distinct categories for both X and Y.`;
+            return;
+        }
+
+        // Initialize Observed matrix O[i][j]
+        const O = Array.from({ length: r }, () => Array(c).fill(0));
+        for (const [xVal, yVal] of pairs) {
+            const i = xLabels.indexOf(xVal);
+            const j = yLabels.indexOf(yVal);
+            O[i][j]++;
+        }
+
+        // Compute Marginal Totals
+        const rowTotals = O.map(row => row.reduce((acc, val) => acc + val, 0));
+        const colTotals = Array(c).fill(0);
+        for (let j = 0; j < c; j++) {
+            for (let i = 0; i < r; i++) {
+                colTotals[j] += O[i][j];
+            }
+        }
+
+        // Compute Expected Frequencies E[i][j] and Chi-Square
+        const E = Array.from({ length: r }, () => Array(c).fill(0));
+        const chiCells = Array.from({ length: r }, () => Array(c).fill(0));
+        let chiSquare = 0;
+
+        for (let i = 0; i < r; i++) {
+            for (let j = 0; j < c; j++) {
+                E[i][j] = (rowTotals[i] * colTotals[j]) / N;
+                const diff = O[i][j] - E[i][j];
+                chiCells[i][j] = (diff * diff) / E[i][j];
+                chiSquare += chiCells[i][j];
+            }
+        }
+
+        const df = (r - 1) * (c - 1);
+        const pValue = chiSquarePValue(chiSquare, df);
+        const cramersV = Math.sqrt(chiSquare / (N * Math.min(r - 1, c - 1)));
+        const isDependent = pValue < alpha;
+
+        // Render Summary Cards
+        document.getElementById("summaryCards").innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">Total Sample Size (N)</div>
+                <div class="stat-value">${N}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">${r} × ${c} Contingency Table</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Chi-Square (\(\chi^2\))</div>
+                <div class="stat-value">${chiSquare.toFixed(4)}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Degrees of Freedom (df) = ${df}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">p-Value</div>
+                <div class="stat-value" style="color: ${isDependent ? '#f87171' : '#34d399'};">${pValue < 0.0001 ? pValue.toExponential(3) : pValue.toFixed(4)}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Significance Level \(\alpha = ${alpha}\)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cramér's V (Effect Size)</div>
+                <div class="stat-value">${cramersV.toFixed(4)}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">${cramersV < 0.1 ? 'Negligible' : cramersV < 0.3 ? 'Weak/Moderate' : 'Strong'} Association</div>
+            </div>
+        `;
+
+        // Render Decision Banner
+        if (isDependent) {
+            document.getElementById("decisionBanner").innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <strong>Statistical Conclusion:</strong>
+                    <span class="badge badge-dep">STATISTICALLY DEPENDENT (Reject H₀)</span>
+                </div>
+                <p style="margin: 10px 0 0 0; color: var(--text-color);">
+                    Since \(p = ${pValue < 0.0001 ? pValue.toExponential(3) : pValue.toFixed(4)} < \alpha = ${alpha}\), we reject the null hypothesis of independence. The conditional distributions \(P(Y \mid X)\) vary significantly across levels of \(X\) (Cramér's \(V = ${cramersV.toFixed(3)}\)).
+                </p>
+            `;
+        } else {
+            document.getElementById("decisionBanner").innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <strong>Statistical Conclusion:</strong>
+                    <span class="badge badge-indep">STATISTICALLY INDEPENDENT (Fail to Reject H₀)</span>
+                </div>
+                <p style="margin: 10px 0 0 0; color: var(--text-color);">
+                    Since \(p = ${pValue.toFixed(4)} \ge \alpha = ${alpha}\), observed deviations from expected frequencies are consistent with random sampling variation. Conditional distributions \(P(Y \mid X)\) closely align with marginal probabilities \(P(Y)\).
+                </p>
+            `;
+        }
+
+        // Render Table 1: Observed & Marginals
+        let obsHTML = `<table><thead><tr><th>X \\ Y</th>`;
+        yLabels.forEach(y => obsHTML += `<th>${y}</th>`);
+        obsHTML += `<th>Row Marginal \(R_i\) (\(P(X)\))</th></tr></thead><tbody>`;
+
+        for (let i = 0; i < r; i++) {
+            obsHTML += `<tr><td class="row-header">${xLabels[i]}</td>`;
+            for (let j = 0; j < c; j++) {
+                const jointProb = ((O[i][j] / N) * 100).toFixed(1);
+                obsHTML += `<td><strong>${O[i][j]}</strong> <span style="color:var(--text-secondary); font-size:0.82rem;">(${jointProb}%)</span></td>`;
+            }
+            const rowProb = ((rowTotals[i] / N) * 100).toFixed(1);
+            obsHTML += `<td class="marginal-cell">${rowTotals[i]} (${rowProb}%)</td></tr>`;
+        }
+
+        obsHTML += `<tr><td class="row-header">Col Marginal \(C_j\) (\(P(Y)\))</td>`;
+        for (let j = 0; j < c; j++) {
+            const colProb = ((colTotals[j] / N) * 100).toFixed(1);
+            obsHTML += `<td class="marginal-cell">${colTotals[j]} (${colProb}%)</td>`;
+        }
+        obsHTML += `<td class="marginal-cell">N = ${N} (100%)</td></tr></tbody></table>`;
+        document.getElementById("observedTableContainer").innerHTML = obsHTML;
+
+        // Render Table 2: Conditional Frequencies
+        let condHTML = `<table><thead><tr><th>X \\ Y</th>`;
+        yLabels.forEach(y => condHTML += `<th>${y}</th>`);
+        condHTML += `<th>Row Sum</th></tr></thead><tbody>`;
+
+        for (let i = 0; i < r; i++) {
+            condHTML += `<tr><td class="row-header">${xLabels[i]}</td>`;
+            for (let j = 0; j < c; j++) {
+                const pYgivenX = ((O[i][j] / rowTotals[i]) * 100).toFixed(1);
+                const pXgivenY = ((O[i][j] / colTotals[j]) * 100).toFixed(1);
+                condHTML += `<td>
+                    <div><span style="color:#38bdf8; font-weight:600;">P(Y|X): ${pYgivenX}%</span></div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary);">P(X|Y): ${pXgivenY}%</div>
+                </td>`;
+            }
+            condHTML += `<td class="marginal-cell">100.0%</td></tr>`;
+        }
+        condHTML += `<tr><td class="row-header">Marginal \(P(Y=y_j)\)</td>`;
+        for (let j = 0; j < c; j++) {
+            const margY = ((colTotals[j] / N) * 100).toFixed(1);
+            condHTML += `<td class="marginal-cell">${margY}%</td>`;
+        }
+        condHTML += `<td class="marginal-cell">—</td></tr></tbody></table>`;
+        document.getElementById("conditionalTableContainer").innerHTML = condHTML;
+
+        // Render Table 3: Expected Frequencies & Chi-Square Contributions
+        let expHTML = `<table><thead><tr><th>X \\ Y</th>`;
+        yLabels.forEach(y => expHTML += `<th>${y}</th>`);
+        expHTML += `<th>Row \(\chi^2\) Subtotal</th></tr></thead><tbody>`;
+
+        for (let i = 0; i < r; i++) {
+            expHTML += `<tr><td class="row-header">${xLabels[i]}</td>`;
+            let rowChi = 0;
+            for (let j = 0; j < c; j++) {
+                rowChi += chiCells[i][j];
+                expHTML += `<td>
+                    <div>\(E_{${i+1}${j+1}} =\) <strong>${E[i][j].toFixed(2)}</strong></div>
+                    <div style="font-size:0.8rem; color:#f59e0b;">\(\chi^2\) contrib: ${chiCells[i][j].toFixed(3)}</div>
+                </td>`;
+            }
+            expHTML += `<td class="marginal-cell">${rowChi.toFixed(3)}</td></tr>`;
+        }
+        expHTML += `</tbody></table>`;
+        document.getElementById("expectedTableContainer").innerHTML = expHTML;
+
+        // Retrigger MathJax rendering on dynamically injected tables
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    window.onload = () => {
+        loadPreset();
+    };
+</script>
+
+</body>
+</html>
